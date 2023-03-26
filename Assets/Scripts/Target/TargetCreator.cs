@@ -1,47 +1,48 @@
-using System;
 using System.Collections.Generic;
+using UI;
 using UnityEngine;
 
 namespace Target
 {
-    [Serializable]
-    public class BlockInfo
-    {
-        [SerializeField] private Color _color;
-        [SerializeField] private int _points;
-        public Color GetColor => _color;
-        public int GetPoints => _points;
-    }
-    
     public class TargetCreator : MonoBehaviour
     {
         [SerializeField] private BuildingBlock _buildingBlock;
         [SerializeField] private Material _blockMaterial;
         [SerializeField, Range(1f, 10f)] private float _blockSize = 1f;
-        [SerializeField] private List<BlockInfo> _pointsInfo;
+        private List<PointsInfo> _pointsInfo;
         
         private Transform _parentTransform;
         private IBuildingBlock[,] _blockArray;
+        private bool _isPrepare;
         private float _halfBlockSize;
         private int _root;
 
-        private void Start()
+        public void Prepare(List<PointsInfo> pointsInfo)
         {
+            if (pointsInfo == null)
+            {
+                Debug.LogError("Points information missing.");
+                return;
+            }
+            
+            _pointsInfo = pointsInfo;
             _halfBlockSize = _blockSize / 2f;
             _root = 2 * (_pointsInfo.Count - 1) + 1;
+            _isPrepare = true;
+            
             CreateTarget(new Vector3(0f, 10f, 25f));
         }
 
-        public IBuildingBlock[,] CreateTarget(Vector3 position)
+        public void CreateTarget(Vector3 position)
         {
+            if (!_isPrepare) return;
+            
             var parent = new GameObject("Target");
             _parentTransform = parent.transform;
             _parentTransform.position = position;
             
             CreateSquareTarget();
             PaintBlocks();
-            
-            return _blockArray;
         }
 
         private void CreateSquareTarget()
@@ -76,13 +77,13 @@ namespace Target
             var block = _blockArray[x, y];
             var info = _pointsInfo[infoIndex];
             block.SetColor = info.GetColor;
-            block.SetPoints = info.GetPoints.ToString();
+            block.Points = info.GetPoints;
         }
         
         private void PaintBlocks()
         {
             var pi = _pointsInfo.Count - 1;
-            var infoArray = new BlockInfo[_root, pi];
+            var infoArray = new PointsInfo[_root, pi];
 
             //Color the lower part of the target
             var t = 0;
@@ -128,7 +129,7 @@ namespace Target
                     var block = _blockArray[j, i];
                     var info = infoArray[x++, y];
                     block.SetColor = info.GetColor;
-                    block.SetPoints = info.GetPoints.ToString();
+                    block.Points = info.GetPoints;
                 }
                 
                 ++y;

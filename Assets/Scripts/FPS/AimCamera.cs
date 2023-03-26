@@ -9,21 +9,25 @@ namespace FPS
         [SerializeField] private float _smoothSpeed;
         private Transform _cameraTransform;
         private Vector3 _originalPosition;
+        private bool _isInit;
         private bool _isAim;
 
-        private void Start()
+        public void Init()
         {
             _cameraTransform = _playerCamera.transform;
             _originalPosition = _cameraTransform.localPosition;
+            _isInit = true;
         }
 
         private void Update()
         {
+            if (!_isInit) return;
             _isAim = Input.GetMouseButton(1);
         }
 
         private void FixedUpdate()
         {
+            if (!_isInit) return;
             var cameraPosition = _isAim ? _aimingPosition : _originalPosition;
             var value = _isAim ? 40f : 60f;
             

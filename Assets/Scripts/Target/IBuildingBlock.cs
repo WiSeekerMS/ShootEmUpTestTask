@@ -7,7 +7,7 @@ namespace Target
         Vector3 Size { get; set; }
         Vector3 LocalPosition { get; set; }
         Color SetColor { set; }
-        string SetPoints { set; }
+        int Points { get; set; }
         void Init();
     }
 }

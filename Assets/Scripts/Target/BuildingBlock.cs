@@ -7,25 +7,31 @@ namespace Target
     {
         [SerializeField] private Renderer _renderer;
         [SerializeField] private TextMeshPro _pointsTMP;
+        private int _points;
         
         public Vector3 Size { get; set; }
         public Vector3 LocalPosition { get; set; }
         public Material BlockMaterial { get; set; }
+        
         public Color SetColor
         {
             set => _renderer.material.color = value;
         }
-        
-        public string SetPoints
+
+        public int Points
         {
-            set => _pointsTMP.text = value;
+            get => _points;
+            set
+            {
+                _points = value;
+                _pointsTMP.text = value.ToString();
+            }
         }
 
         public void Init()
         {
             transform.localPosition = LocalPosition;
             transform.localScale = Size;
-            //BlockMaterial.color = Random.ColorHSV();
             _renderer.material = BlockMaterial;
         }
     }

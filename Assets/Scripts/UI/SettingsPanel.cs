@@ -1,4 +1,7 @@
-﻿using UI.Base;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Configs;
+using UI.Base;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -12,35 +15,60 @@ namespace UI
         [SerializeField] private Button _addPointsButton;
         [SerializeField] private Button _startButton;
         private RectTransform _pointsContainer;
+        private HorizontalLayoutGroup _pointsLayoutGroup;
+        private MainConfig _mainConfig;
+
+        public Button StartButton => _startButton;
 
         [Inject]
-        private void Init()
+        private void Constructor(MainConfig mainConfig)
         {
+            _mainConfig = mainConfig;
         }
 
         private void Awake()
         {
             _addPointsButton.onClick.AddListener(OnClickAddPointsButton);
-            _startButton.onClick.AddListener(OnClickStartButton);
         }
 
         private void Start()
         {
             _pointsContainer = _targetPointsSR.content;
+            _pointsLayoutGroup = _pointsContainer.GetComponent<HorizontalLayoutGroup>();
         }
 
         private void OnDestroy()
         {
             _addPointsButton.onClick.RemoveAllListeners();
-            _startButton.onClick.RemoveAllListeners();
         }
 
         private void OnClickAddPointsButton()
         {
-        }
+            var spacing = _pointsLayoutGroup != null 
+                ? _pointsLayoutGroup.spacing 
+                : 0f;
+            
+            var prefab = _mainConfig.PointsInfoPrefab;
+            var pointInfo = Instantiate(prefab, _pointsContainer);
 
-        private void OnClickStartButton()
+            var pointsInfoTransform = pointInfo.transform as RectTransform;
+            pointsInfoTransform.SetSiblingIndex(1);
+            
+            var offsetMax = _pointsContainer.offsetMax;
+            _pointsContainer.offsetMax = new Vector2
+            {
+                x = offsetMax.x + pointsInfoTransform.sizeDelta.x + spacing, 
+                y = offsetMax.y
+            };
+            
+            pointInfo.Init();
+        }
+        
+        public List<PointsInfo> CollectPointsInformation()
         {
+            return _pointsContainer
+                .GetComponentsInChildren<PointsInfo>()
+                .ToList();
         }
     }
 }
