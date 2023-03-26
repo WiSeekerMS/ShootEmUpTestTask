@@ -4,7 +4,8 @@ namespace DefaultNamespace
 {
     public class FPSController : MonoBehaviour
     {
-        [SerializeField] private GameObject _holePrefab;
+        [SerializeField] private Transform _muzzleTransform;
+        [SerializeField] private FlyingBullet _bulletPrefab;
         private bool _isHit;
         private RaycastHit _hitInfo;
 
@@ -12,9 +13,7 @@ namespace DefaultNamespace
         {
             if (Input.GetKeyDown(KeyCode.Mouse0) && _isHit)
             {
-                var hole = Instantiate(_holePrefab);
-                hole.transform.position = _hitInfo.point;
-                hole.transform.rotation = Quaternion.FromToRotation(hole.transform.forward, _hitInfo.point);
+                
             }    
         }
         

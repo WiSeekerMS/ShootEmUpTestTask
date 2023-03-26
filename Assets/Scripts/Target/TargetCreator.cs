@@ -29,7 +29,7 @@ namespace Target
         {
             _halfBlockSize = _blockSize / 2f;
             _root = 2 * (_pointsInfo.Count - 1) + 1;
-            CreateTarget(new Vector3(0f, 10f, 6f));
+            CreateTarget(new Vector3(0f, 10f, 25f));
         }
 
         public IBuildingBlock[,] CreateTarget(Vector3 position)

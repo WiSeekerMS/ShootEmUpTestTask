@@ -23,10 +23,10 @@ public class MouseLook : MonoBehaviour
         var valueY = Input.GetAxis(AXIS_Y) * Time.deltaTime * _mouseSensitivity;
 
         _xRotation -= valueY;
-        _xRotation = Mathf.Clamp(_xRotation, -25f, 25f);
+        _xRotation = Mathf.Clamp(_xRotation, -15f, 15f);
         
         _yRotation += valueX;
-        _yRotation = Mathf.Clamp(_yRotation, -50f, 50f);
+        _yRotation = Mathf.Clamp(_yRotation, -35f, 35f);
 
         transform.localRotation = Quaternion.Euler(_xRotation, _yRotation, 0f);
     }
