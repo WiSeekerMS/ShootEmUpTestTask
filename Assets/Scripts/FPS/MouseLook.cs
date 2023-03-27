@@ -13,6 +13,12 @@ namespace FPS
         private const string AXIS_X = "Mouse X";
         private const string AXIS_Y = "Mouse Y";
 
+        public bool IsBlockControl
+        {
+            get => _isInit;
+            set => _isInit = !value;
+        }
+
         public void Init()
         {
             Cursor.lockState = CursorLockMode.Locked;

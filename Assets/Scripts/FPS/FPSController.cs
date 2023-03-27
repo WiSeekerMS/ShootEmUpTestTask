@@ -1,4 +1,10 @@
-﻿using UnityEngine;
+﻿using System;
+using Common;
+using Configs;
+using Target;
+using UI;
+using UnityEngine;
+using Zenject;
 
 namespace FPS
 {
@@ -9,24 +15,78 @@ namespace FPS
         [SerializeField] private AimCamera _aimCamera;
         [SerializeField] private Transform _muzzleTransform;
         [SerializeField] private FlyingBullet _bulletPrefab;
+        private GameManager _gameManager;
+        private GameUIController _gameUIController;
+        private WeaponConfig _weaponConfig;
         private RaycastHit _hitInfo;
+        private int _bulletAmount;
         private bool _isInit;
         private bool _isHit;
 
-        public void Init()
+        public Vector3 MuzzleWorldPosition => _muzzleTransform.position;
+
+        [Inject]
+        private void Constructor(
+            GameManager gameManager, 
+            GameUIController gameUIController)
         {
+            _gameManager = gameManager;
+            _gameUIController = gameUIController;
+        }
+
+        public void Init(WeaponConfig weaponConfig)
+        {
+            _weaponConfig = weaponConfig;
+            _bulletAmount = weaponConfig.BulletAmount;
+            
             _mouseLook.Init();
             _aimCamera.Init();
             _isInit = true;
+        }
+
+        public void ResetParams()
+        {
+            _bulletAmount = _weaponConfig.BulletAmount;
+        }
+
+        public void BlockPlayerControl()
+        {
+            _isInit = false;
+            _mouseLook.IsBlockControl = true;
+        }
+        
+        public void UnlockPlayerControl()
+        {
+            _isInit = true;
+            _mouseLook.IsBlockControl = false;
+        }
+
+        private void CreateBullet()
+        {
+            _gameUIController.HideLastBullet();
+            
+            var bullet = Instantiate(_bulletPrefab);
+            bullet.transform.position = _muzzleTransform.position;
+            
+            bullet.Init(OnHitTarget);
+            bullet.MoveTo(50f, _hitInfo.point);
+        }
+
+        private void OnHitTarget(Collider other)
+        {
+            var block = other.GetComponent<IBuildingBlock>();
+            if (block == null || block.Equals(null)) return;
+            _gameManager.OnHitTarget(block);
         }
         
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Mouse0) && _isInit && _isHit)
             {
-                var bullet = Instantiate(_bulletPrefab);
-                bullet.transform.position = _muzzleTransform.position;
-                bullet.MoveTo(35f, _hitInfo.point);
+                if (--_bulletAmount >= 0)
+                {
+                    CreateBullet(); 
+                }
             }    
         }
         

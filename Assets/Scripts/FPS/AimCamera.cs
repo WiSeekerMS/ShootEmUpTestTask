@@ -11,6 +11,12 @@ namespace FPS
         private Vector3 _originalPosition;
         private bool _isInit;
         private bool _isAim;
+        
+        public bool IsBlockControl
+        {
+            get => _isInit;
+            set => _isInit = !value;
+        }
 
         public void Init()
         {
@@ -33,7 +39,14 @@ namespace FPS
             
             _cameraTransform.localPosition = Vector3.Lerp(_cameraTransform.localPosition, 
                 cameraPosition, _smoothSpeed * Time.deltaTime);
-            
+
+            /*if (_isAim)
+            {
+                cameraPosition += Random.onUnitSphere * 5f;
+                _cameraTransform.localPosition = Vector3.Lerp(_cameraTransform.localPosition, 
+                    cameraPosition, 0.9f * Time.deltaTime);
+            }*/
+   
             _playerCamera.fieldOfView = Mathf.Lerp(_playerCamera.fieldOfView, value, 5.5f * Time.deltaTime);
         }
     }

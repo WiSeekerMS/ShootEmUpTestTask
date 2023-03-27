@@ -1,13 +1,21 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FPS
 {
     public class FlyingBullet : MonoBehaviour
     {
+        [SerializeField]
+        private List<TriggerHandler> _triggerHandlers;
         private Coroutine _moveToCor;
         private Coroutine _timerCor;
+
+        public void Init(Action<Collider> triggerAction)
+        {
+            _triggerHandlers.ForEach(h => h.EnterAction = triggerAction);
+        }
 
         public void MoveTo(float speed, Vector3 targetPosition)
         {

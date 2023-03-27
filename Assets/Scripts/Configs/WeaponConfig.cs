@@ -13,5 +13,14 @@ namespace Configs
         [SerializeField] private int _bulletAmountPerShot;
         [SerializeField] private float _sightShiftSpeed;
         [SerializeField] private float _scoringRatio;
+
+        public Sprite Icon => _icon;
+        public string WeaponName => _weaponName;
+        public GameObject WeaponPrefab => _weaponPrefab;
+        public Vector3 PositionWhenAiming => _positionWhenAiming;
+        public int BulletAmount => _bulletAmount;
+        public int BulletAmountPerShot => _bulletAmountPerShot;
+        public float SightShiftSpeed => _sightShiftSpeed;
+        public float ScoringRatio => _scoringRatio;
     }
 }

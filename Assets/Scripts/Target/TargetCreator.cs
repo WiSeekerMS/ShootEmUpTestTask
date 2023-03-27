@@ -29,8 +29,6 @@ namespace Target
             _halfBlockSize = _blockSize / 2f;
             _root = 2 * (_pointsInfo.Count - 1) + 1;
             _isPrepare = true;
-            
-            CreateTarget(new Vector3(0f, 10f, 25f));
         }
 
         public void CreateTarget(Vector3 position)
@@ -43,6 +41,14 @@ namespace Target
             
             CreateSquareTarget();
             PaintBlocks();
+        }
+
+        public void SetTargetPosition(Vector3 position)
+        {
+            if (!_isPrepare || _blockArray == null)
+                return;
+            
+            _parentTransform.position = position;
         }
 
         private void CreateSquareTarget()

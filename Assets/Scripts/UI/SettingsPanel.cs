@@ -15,8 +15,11 @@ namespace UI
         [SerializeField] private Button _addPointsButton;
         [SerializeField] private Button _startButton;
         private RectTransform _pointsContainer;
+        private RectTransform _weaponsContainer;
         private HorizontalLayoutGroup _pointsLayoutGroup;
+        private HorizontalLayoutGroup _weaponsLayoutGroup;
         private MainConfig _mainConfig;
+        private List<WeaponInfo> _weaponInfos;
 
         public Button StartButton => _startButton;
 
@@ -33,13 +36,65 @@ namespace UI
 
         private void Start()
         {
+            _weaponsContainer = _weaponsSR.content;
+            _weaponsLayoutGroup = _weaponsContainer.GetComponent<HorizontalLayoutGroup>();
+            
             _pointsContainer = _targetPointsSR.content;
             _pointsLayoutGroup = _pointsContainer.GetComponent<HorizontalLayoutGroup>();
+ 
+            FillWeaponsList();
         }
 
         private void OnDestroy()
         {
             _addPointsButton.onClick.RemoveAllListeners();
+        }
+
+        private void FillWeaponsList()
+        {
+            _weaponInfos = new List<WeaponInfo>();
+            var configs = _mainConfig.WeaponConfigs;
+            var infoPrefab = _mainConfig.WeaponInfoPrefab;
+            
+            foreach (var config in configs)
+            {
+                var info = Instantiate(infoPrefab, _weaponsContainer);
+                _weaponInfos.Add(info);
+                info.Init(config);
+            }
+            
+            var offsetMax = _weaponsContainer.offsetMax;
+            var prefabTransform = infoPrefab.transform as RectTransform;
+            var rightShift = prefabTransform.sizeDelta.x * configs.Count;
+            
+            var spacing = _weaponsLayoutGroup != null 
+                ? _weaponsLayoutGroup.spacing 
+                : 0f;
+            
+            _weaponsContainer.offsetMax = new Vector2
+            {
+                x = offsetMax.x + rightShift + spacing, 
+                y = offsetMax.y
+            };
+
+            var firstInfo = _weaponInfos.First();
+            if (firstInfo) firstInfo.IsOn = true;
+            
+            _weaponInfos
+                .ForEach(i => i.Toggle.onValueChanged.AddListener(_ => OnChangeToggleValue(i)));
+        }
+
+        private void OnChangeToggleValue(WeaponInfo info)
+        {
+            _weaponInfos
+                .ForEach(i => i.Toggle.onValueChanged.RemoveAllListeners());
+            
+            _weaponInfos.FindAll(i => i != info)
+                .ForEach(i =>
+                {
+                    i.IsOn = false;
+                    i.Toggle.onValueChanged.AddListener(_ => OnChangeToggleValue(i));
+                });
         }
 
         private void OnClickAddPointsButton()
@@ -69,6 +124,15 @@ namespace UI
             return _pointsContainer
                 .GetComponentsInChildren<PointsInfo>()
                 .ToList();
+        }
+
+        public WeaponConfig GetCurrentWeaponConfig()
+        {
+            return _weaponsContainer
+                .GetComponentsInChildren<WeaponInfo>()
+                .ToList()
+                .FirstOrDefault(i => i.IsOn)
+                ?.Config;
         }
     }
 }
