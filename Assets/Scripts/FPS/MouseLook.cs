@@ -1,22 +1,34 @@
-﻿using UnityEngine;
+﻿using Configs;
+using UnityEngine;
+using Zenject;
 
 namespace FPS
 {
     public class MouseLook : MonoBehaviour
     {
         [SerializeField] private Camera _playerCamera;
-        [SerializeField] private float _mouseSensitivity;
+        private PlayerConfig _playerConfig;
         private float _xRotation;
         private float _yRotation;
         private bool _isInit;
+        private Vector2 _clampAxisX;
+        private Vector2 _clampAxisY;
     
-        private const string AXIS_X = "Mouse X";
-        private const string AXIS_Y = "Mouse Y";
+        private const string AxisX = "Mouse X";
+        private const string AxisY = "Mouse Y";
 
         public bool IsBlockControl
         {
             get => _isInit;
             set => _isInit = !value;
+        }
+        
+        [Inject]
+        private void Constructor(PlayerConfig playerConfig)
+        {
+            _playerConfig = playerConfig;
+            _clampAxisX = _playerConfig.ClampAxisX;
+            _clampAxisY = _playerConfig.ClampAxisY;
         }
 
         public void Init()
@@ -29,14 +41,14 @@ namespace FPS
         private void Update()
         {
             if (!_isInit) return;
-            var valueX = Input.GetAxis(AXIS_X) * Time.deltaTime * _mouseSensitivity;
-            var valueY = Input.GetAxis(AXIS_Y) * Time.deltaTime * _mouseSensitivity;
-
+            var valueX = Input.GetAxis(AxisX) * Time.deltaTime * _playerConfig.MouseSensitivity;
+            var valueY = Input.GetAxis(AxisY) * Time.deltaTime * _playerConfig.MouseSensitivity;
+            
             _xRotation -= valueY;
-            _xRotation = Mathf.Clamp(_xRotation, -15f, 15f);
+            _xRotation = Mathf.Clamp(_xRotation, _clampAxisX.x, _clampAxisX.y);
         
             _yRotation += valueX;
-            _yRotation = Mathf.Clamp(_yRotation, -35f, 35f);
+            _yRotation = Mathf.Clamp(_yRotation, _clampAxisY.x, _clampAxisY.y);
 
             transform.localRotation = Quaternion.Euler(_xRotation, _yRotation, 0f);
         }

@@ -26,6 +26,8 @@ namespace Common
 
         private const float TargetYPosition = 10f;
         private const float TimeToMoveToNextLevel = 1.5f;
+
+        public WeaponConfig CurrentWeaponConfig => _weaponConfig;
         
         [Inject]
         private void Constructor(
@@ -100,13 +102,13 @@ namespace Common
             _timerCor = null;
         }
 
-        public void OnHitTarget(IBuildingBlock buildingBlock)
+        public void OnHitTarget(float points)
         {
             if (_isCheckComplete) return;
             _isCheckComplete = true;
 
-            var points = buildingBlock.Points * _weaponConfig.ScoringRatio;
-            _gameUIController.UpdateScore(points);
+            var value = points * _weaponConfig.ScoringRatio;
+            _gameUIController.UpdateScore(value);
             CheckLevelComplete();
         }
 

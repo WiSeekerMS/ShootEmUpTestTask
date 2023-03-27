@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Target;
 using UnityEngine;
 
 namespace FPS
@@ -9,12 +10,23 @@ namespace FPS
     {
         [SerializeField]
         private List<TriggerHandler> _triggerHandlers;
+        private Action<float> _hitTarget;
         private Coroutine _moveToCor;
         private Coroutine _timerCor;
+        private float _points;
+        private int _counter;
 
-        public void Init(Action<Collider> triggerAction)
+        public void Init(Action<float> triggerAction)
         {
-            _triggerHandlers.ForEach(h => h.EnterAction = triggerAction);
+            _hitTarget = triggerAction;
+            _triggerHandlers.ForEach(h => h.EnterAction = OnEnterTrigger);
+        }
+
+        private void OnEnterTrigger(Collider other)
+        {
+            var block = other.GetComponent<IBuildingBlock>();
+            if (block == null || block.Equals(null)) return;
+            _points += block.Points;
         }
 
         public void MoveTo(float speed, Vector3 targetPosition)
@@ -41,7 +53,11 @@ namespace FPS
         private void ReachedTarget()
         {
             if(_timerCor != null) StopCoroutine(_timerCor);
-            _timerCor = StartCoroutine(TimerCor(() => Destroy(gameObject)));
+            _timerCor = StartCoroutine(TimerCor(() =>
+            {
+                _hitTarget?.Invoke(_points);
+                Destroy(gameObject);
+            }));
         }
 
         private IEnumerator TimerCor(Action action)

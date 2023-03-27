@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using FPS;
+using UnityEngine;
 
 namespace Configs
 {
@@ -8,6 +9,7 @@ namespace Configs
         [SerializeField] private Sprite _icon;
         [SerializeField] private string _weaponName;
         [SerializeField] private GameObject _weaponPrefab;
+        [SerializeField] private FlyingBullet _bulletPrefab;
         [SerializeField] private Vector3 _positionWhenAiming;
         [SerializeField] private int _bulletAmount;
         [SerializeField] private int _bulletAmountPerShot;
@@ -17,6 +19,7 @@ namespace Configs
         public Sprite Icon => _icon;
         public string WeaponName => _weaponName;
         public GameObject WeaponPrefab => _weaponPrefab;
+        public FlyingBullet BulletPrefab => _bulletPrefab;
         public Vector3 PositionWhenAiming => _positionWhenAiming;
         public int BulletAmount => _bulletAmount;
         public int BulletAmountPerShot => _bulletAmountPerShot;

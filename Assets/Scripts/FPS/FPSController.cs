@@ -14,7 +14,7 @@ namespace FPS
         [SerializeField] private MouseLook _mouseLook;
         [SerializeField] private AimCamera _aimCamera;
         [SerializeField] private Transform _muzzleTransform;
-        [SerializeField] private FlyingBullet _bulletPrefab;
+        private FlyingBullet _bulletPrefab;
         private GameManager _gameManager;
         private GameUIController _gameUIController;
         private WeaponConfig _weaponConfig;
@@ -37,6 +37,7 @@ namespace FPS
         public void Init(WeaponConfig weaponConfig)
         {
             _weaponConfig = weaponConfig;
+            _bulletPrefab = weaponConfig.BulletPrefab;
             _bulletAmount = weaponConfig.BulletAmount;
             
             _mouseLook.Init();
@@ -72,11 +73,9 @@ namespace FPS
             bullet.MoveTo(50f, _hitInfo.point);
         }
 
-        private void OnHitTarget(Collider other)
+        private void OnHitTarget(float points)
         {
-            var block = other.GetComponent<IBuildingBlock>();
-            if (block == null || block.Equals(null)) return;
-            _gameManager.OnHitTarget(block);
+            _gameManager.OnHitTarget(points);
         }
         
         private void Update()

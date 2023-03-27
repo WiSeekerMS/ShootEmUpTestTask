@@ -21,8 +21,12 @@ namespace UI
 
         public bool IsOn
         {
-            get => _toggle;
-            set => _toggle.isOn = value;
+            get => _toggle.isOn;
+            set
+            {
+                _toggle.isOn = value;
+                _toggle.enabled = !value;
+            }
         }
 
         public void Init(WeaponConfig config, bool isOn = false)

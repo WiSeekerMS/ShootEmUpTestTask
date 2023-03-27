@@ -88,7 +88,7 @@ namespace UI
         {
             _weaponInfos
                 .ForEach(i => i.Toggle.onValueChanged.RemoveAllListeners());
-            
+
             _weaponInfos.FindAll(i => i != info)
                 .ForEach(i =>
                 {
