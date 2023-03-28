@@ -1,5 +1,6 @@
 ﻿using Configs;
 using UnityEngine;
+using Utils.Extensions;
 using Zenject;
 
 namespace Bootstrap
@@ -12,15 +13,8 @@ namespace Bootstrap
         
         public override void InstallBindings()
         {
-            Container
-                .BindInterfacesAndSelfTo<MainConfig>()
-                .FromInstance(_mainConfig)
-                .AsSingle();
-            
-            Container
-                .BindInterfacesAndSelfTo<PlayerConfig>()
-                .FromInstance(_playerConfig)
-                .AsSingle();
+            Container.InstallRegistry(_mainConfig);
+            Container.InstallRegistry(_playerConfig);
         }
     }
 }

@@ -1,9 +1,8 @@
-﻿using Unity.VisualScripting;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace UI.Base
 {
-    public class PanelController : MonoBehaviour
+    public abstract class PanelController : MonoBehaviour
     {
         [SerializeField] private CanvasGroup _canvasGroup;
         private bool _isVisible = true;

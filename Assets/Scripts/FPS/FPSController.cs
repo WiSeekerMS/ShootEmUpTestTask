@@ -1,5 +1,6 @@
 ﻿using Common;
 using Configs;
+using Factories;
 using UI;
 using UnityEngine;
 using Zenject;
@@ -14,6 +15,7 @@ namespace FPS
         [SerializeField] private Transform _muzzleTransform;
         [SerializeField] private float _bulletSpeed = 50f;
         private FlyingBullet _bulletPrefab;
+        private BulletFactory _bulletFactory;
         private GameManager _gameManager;
         private GameUIController _gameUIController;
         private WeaponConfig _weaponConfig;
@@ -27,10 +29,12 @@ namespace FPS
         [Inject]
         private void Constructor(
             GameManager gameManager, 
-            GameUIController gameUIController)
+            GameUIController gameUIController,
+            BulletFactory bulletFactory)
         {
             _gameManager = gameManager;
             _gameUIController = gameUIController;
+            _bulletFactory = bulletFactory;
         }
 
         public void Init(WeaponConfig weaponConfig)
@@ -65,9 +69,9 @@ namespace FPS
         {
             _gameUIController.HideLastBullet();
             
-            var bullet = Instantiate(_bulletPrefab);
-            bullet.transform.position = _muzzleTransform.position;
-            
+            var bullet = _bulletFactory.Create(_bulletPrefab, 
+                _muzzleTransform.position, transform);
+
             bullet.Init(OnHitTarget);
             bullet.MoveTo(_bulletSpeed, _hitInfo.point);
         }

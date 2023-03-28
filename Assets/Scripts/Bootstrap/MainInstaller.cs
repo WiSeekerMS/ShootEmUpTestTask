@@ -1,8 +1,10 @@
 ﻿using Common;
+using Factories;
 using FPS;
 using Target;
 using UI;
 using UnityEngine;
+using Utils.Extensions;
 using Zenject;
 
 namespace Bootstrap
@@ -17,29 +19,19 @@ namespace Bootstrap
         
         public override void InstallBindings()
         {
+            Container.InstallRegistry(_settingsPanel);
+            Container.InstallRegistry(_gameUIController);
+            Container.InstallRegistry(_gameManager);
+            Container.InstallRegistry(_targetCreator);
+            Container.InstallRegistry(_fpsController);
+
+            BindFactories();
+        }
+
+        private void BindFactories()
+        {
             Container
-                .Bind<SettingsPanel>()
-                .FromInstance(_settingsPanel)
-                .AsSingle();
-            
-            Container
-                .Bind<GameUIController>()
-                .FromInstance(_gameUIController)
-                .AsSingle();
-            
-            Container
-                .Bind<GameManager>()
-                .FromInstance(_gameManager)
-                .AsSingle();
-            
-            Container
-                .Bind<TargetCreator>()
-                .FromInstance(_targetCreator)
-                .AsSingle();
-            
-            Container
-                .Bind<FPSController>()
-                .FromInstance(_fpsController)
+                .BindFactory<FlyingBullet, BulletFactory>()
                 .AsSingle();
         }
     }
