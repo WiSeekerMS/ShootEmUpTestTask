@@ -1,7 +1,5 @@
-﻿using System;
-using Common;
+﻿using Common;
 using Configs;
-using Target;
 using UI;
 using UnityEngine;
 using Zenject;
@@ -14,6 +12,7 @@ namespace FPS
         [SerializeField] private MouseLook _mouseLook;
         [SerializeField] private AimCamera _aimCamera;
         [SerializeField] private Transform _muzzleTransform;
+        [SerializeField] private float _bulletSpeed = 50f;
         private FlyingBullet _bulletPrefab;
         private GameManager _gameManager;
         private GameUIController _gameUIController;
@@ -70,7 +69,7 @@ namespace FPS
             bullet.transform.position = _muzzleTransform.position;
             
             bullet.Init(OnHitTarget);
-            bullet.MoveTo(50f, _hitInfo.point);
+            bullet.MoveTo(_bulletSpeed, _hitInfo.point);
         }
 
         private void OnHitTarget(float points)

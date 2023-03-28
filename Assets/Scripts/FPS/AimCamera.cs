@@ -8,6 +8,7 @@ namespace FPS
     public class AimCamera : MonoBehaviour
     {
         [SerializeField] private Camera _playerCamera;
+        [SerializeField] private HeadBobbing _headBobbing;
         [SerializeField] private Vector3 _aimingPosition;
         private PlayerConfig _playerConfig;
         private GameManager _gameManager;
@@ -44,6 +45,7 @@ namespace FPS
         {
             if (!_isInit) return;
             _isAim = Input.GetMouseButton(1);
+            _headBobbing.IsBobbing = _isAim;
         }
 
         private void FixedUpdate()
@@ -55,14 +57,14 @@ namespace FPS
             _cameraTransform.localPosition = Vector3.Lerp(_cameraTransform.localPosition, 
                 cameraPosition, _playerConfig.AimingSpeed * Time.deltaTime);
 
-            if (_isAim)
+            /*if (_isAim)
             {
                 var p = Random.insideUnitCircle * RadiusRandomPointsOnCircle;
                 cameraPosition += new Vector3(p.x, p.y, 0f);
                 
                 _cameraTransform.localPosition = Vector3.MoveTowards(_cameraTransform.localPosition, 
                     cameraPosition, _gameManager.CurrentWeaponConfig.SightShiftSpeed * Time.deltaTime);
-            }
+            }*/
    
             _playerCamera.fieldOfView = Mathf.Lerp(_playerCamera.fieldOfView, 
                 value, _playerConfig.ViewFieldShiftSpeed * Time.deltaTime);
