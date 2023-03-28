@@ -14,7 +14,6 @@ namespace FPS
         private Coroutine _moveToCor;
         private Coroutine _timerCor;
         private float _points;
-        private int _counter;
 
         public void Init(Action<float> triggerAction)
         {

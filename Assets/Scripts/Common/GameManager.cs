@@ -75,7 +75,7 @@ namespace Common
             var pointsInfo = _settingsPanel.CollectPointsInformation();
             var muzzlePosition = _fpsController.MuzzleWorldPosition;
             
-            _targetCreator.Prepare(pointsInfo);
+            _targetCreator.Init(pointsInfo);
             var levelInfo = _levelConfigs.FirstOrDefault(i => i.LevelIndex == _currentLevelIndex);
 
             if (levelInfo != null)

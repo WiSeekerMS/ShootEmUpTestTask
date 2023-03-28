@@ -1,5 +1,6 @@
-﻿using Common;
-using Configs;
+﻿using Configs;
+using System;
+using UniRx;
 using UnityEngine;
 using Zenject;
 
@@ -10,15 +11,14 @@ namespace FPS
         [SerializeField] private Camera _playerCamera;
         [SerializeField] private HeadBobbing _headBobbing;
         [SerializeField] private Vector3 _aimingPosition;
+        private IDisposable _updateObservable;
+        private IDisposable _fixedUpdateObservable;
         private PlayerConfig _playerConfig;
-        private GameManager _gameManager;
         private Transform _cameraTransform;
         private Vector3 _originalPosition;
         private bool _isInit;
         private bool _isAim;
 
-        private const float RadiusRandomPointsOnCircle = 5f;
-        
         public bool IsBlockControl
         {
             get => _isInit;
@@ -26,12 +26,26 @@ namespace FPS
         }
 
         [Inject]
-        private void Constructor(
-            PlayerConfig playerConfig, 
-            GameManager gameManager)
+        private void Constructor(PlayerConfig playerConfig)
         {
             _playerConfig = playerConfig;
-            _gameManager = gameManager;
+        }
+
+        private void Awake()
+        {
+            _updateObservable = Observable
+                .EveryUpdate()
+                .Subscribe(_ => OnUpdate());
+
+            _fixedUpdateObservable = Observable
+                .EveryFixedUpdate()
+                .Subscribe(_ => OnFixedUpdate());
+        }
+
+        private void OnDestroy()
+        {
+            _updateObservable?.Dispose();
+            _fixedUpdateObservable?.Dispose();
         }
 
         public void Init()
@@ -41,14 +55,14 @@ namespace FPS
             _isInit = true;
         }
 
-        private void Update()
+        private void OnUpdate()
         {
             if (!_isInit) return;
             _isAim = Input.GetMouseButton(1);
             _headBobbing.IsBobbing = _isAim;
         }
 
-        private void FixedUpdate()
+        private void OnFixedUpdate()
         {
             if (!_isInit) return;
             var cameraPosition = _isAim ? _aimingPosition : _originalPosition;
@@ -57,15 +71,6 @@ namespace FPS
             _cameraTransform.localPosition = Vector3.Lerp(_cameraTransform.localPosition, 
                 cameraPosition, _playerConfig.AimingSpeed * Time.deltaTime);
 
-            /*if (_isAim)
-            {
-                var p = Random.insideUnitCircle * RadiusRandomPointsOnCircle;
-                cameraPosition += new Vector3(p.x, p.y, 0f);
-                
-                _cameraTransform.localPosition = Vector3.MoveTowards(_cameraTransform.localPosition, 
-                    cameraPosition, _gameManager.CurrentWeaponConfig.SightShiftSpeed * Time.deltaTime);
-            }*/
-   
             _playerCamera.fieldOfView = Mathf.Lerp(_playerCamera.fieldOfView, 
                 value, _playerConfig.ViewFieldShiftSpeed * Time.deltaTime);
         }

@@ -1,7 +1,9 @@
 ﻿using Common;
 using Configs;
 using Factories;
+using System;
 using UI;
+using UniRx;
 using UnityEngine;
 using Zenject;
 
@@ -13,7 +15,10 @@ namespace FPS
         [SerializeField] private MouseLook _mouseLook;
         [SerializeField] private AimCamera _aimCamera;
         [SerializeField] private Transform _muzzleTransform;
+        [SerializeField] private Transform _bulletParent;
         [SerializeField] private float _bulletSpeed = 50f;
+        private IDisposable _updateObservable;
+        private IDisposable _fixedUpdateObservable;
         private FlyingBullet _bulletPrefab;
         private BulletFactory _bulletFactory;
         private GameManager _gameManager;
@@ -35,6 +40,49 @@ namespace FPS
             _gameManager = gameManager;
             _gameUIController = gameUIController;
             _bulletFactory = bulletFactory;
+        }
+
+        private void Awake()
+        {
+            _updateObservable = Observable
+                .EveryUpdate()
+                .Subscribe(_ => OnUpdate());
+
+            _fixedUpdateObservable = Observable
+                .EveryFixedUpdate()
+                .Subscribe(_ => OnFixedUpdate());
+        }
+
+        private void OnDestroy()
+        {
+            _updateObservable?.Dispose();
+            _fixedUpdateObservable?.Dispose();
+        }
+
+        private void OnUpdate()
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0) && _isInit && _isHit)
+            {
+                if (--_bulletAmount >= 0)
+                {
+                    _gameUIController.HideLastBullet();
+
+                    var bullet = CreateBullet();
+                    bullet.Init(OnHitTarget);
+                    bullet.MoveTo(_bulletSpeed, _hitInfo.point);
+                }
+            }
+        }
+
+        private void OnFixedUpdate()
+        {
+            if (!_isInit) return;
+            var ray = _fpsCamera.ScreenPointToRay(Input.mousePosition);
+            _isHit = Physics.Raycast(ray, out _hitInfo, Mathf.Infinity);
+
+            if (!_isHit) return;
+            var forward = _fpsCamera.transform.TransformDirection(Vector3.forward) * _hitInfo.distance;
+            Debug.DrawRay(ray.origin, forward, Color.red);
         }
 
         public void Init(WeaponConfig weaponConfig)
@@ -65,42 +113,15 @@ namespace FPS
             _mouseLook.IsBlockControl = false;
         }
 
-        private void CreateBullet()
+        private FlyingBullet CreateBullet()
         {
-            _gameUIController.HideLastBullet();
-            
-            var bullet = _bulletFactory.Create(_bulletPrefab, 
-                _muzzleTransform.position, transform);
-
-            bullet.Init(OnHitTarget);
-            bullet.MoveTo(_bulletSpeed, _hitInfo.point);
+            return _bulletFactory.Create(_bulletPrefab, 
+                _muzzleTransform.position, _bulletParent);
         }
 
         private void OnHitTarget(float points)
         {
             _gameManager.OnHitTarget(points);
-        }
-        
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Mouse0) && _isInit && _isHit)
-            {
-                if (--_bulletAmount >= 0)
-                {
-                    CreateBullet(); 
-                }
-            }    
-        }
-        
-        private void FixedUpdate()
-        {
-            if(!_isInit) return;
-            var ray = _fpsCamera.ScreenPointToRay(Input.mousePosition);
-            _isHit = Physics.Raycast(ray, out _hitInfo, Mathf.Infinity);
-            
-            if (!_isHit) return;
-            var forward = _fpsCamera.transform.TransformDirection(Vector3.forward) * _hitInfo.distance;
-            Debug.DrawRay(ray.origin, forward, Color.red);
         }
     }
 }

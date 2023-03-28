@@ -1,4 +1,6 @@
 ﻿using Configs;
+using System;
+using UniRx;
 using UnityEngine;
 using Zenject;
 
@@ -7,13 +9,15 @@ namespace FPS
     public class MouseLook : MonoBehaviour
     {
         [SerializeField] private Camera _playerCamera;
+        [SerializeField] private Transform _bodyTransform;
+        private IDisposable _updateObservable;
         private PlayerConfig _playerConfig;
         private float _xRotation;
         private float _yRotation;
         private bool _isInit;
         private Vector2 _clampAxisX;
         private Vector2 _clampAxisY;
-    
+
         private const string AxisX = "Mouse X";
         private const string AxisY = "Mouse Y";
 
@@ -31,6 +35,18 @@ namespace FPS
             _clampAxisY = _playerConfig.ClampAxisY;
         }
 
+        private void Awake()
+        {
+            _updateObservable = Observable
+                .EveryUpdate()
+                .Subscribe(_ => OnUpdate());
+        }
+
+        private void OnDestroy()
+        {
+            _updateObservable?.Dispose();
+        }
+
         public void Init()
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -38,7 +54,7 @@ namespace FPS
             _isInit = true;
         }
 
-        private void Update()
+        private void OnUpdate()
         {
             if (!_isInit) return;
             var valueX = Input.GetAxis(AxisX) * Time.deltaTime * _playerConfig.MouseSensitivity;
@@ -50,7 +66,7 @@ namespace FPS
             _yRotation += valueX;
             _yRotation = Mathf.Clamp(_yRotation, _clampAxisY.x, _clampAxisY.y);
 
-            transform.localRotation = Quaternion.Euler(_xRotation, _yRotation, 0f);
+            _bodyTransform.localRotation = Quaternion.Euler(_xRotation, _yRotation, 0f);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Target
         private float _halfBlockSize;
         private int _root;
 
-        public void Prepare(List<PointsInfo> pointsInfo)
+        public void Init(List<PointsInfo> pointsInfo)
         {
             if (pointsInfo == null)
             {

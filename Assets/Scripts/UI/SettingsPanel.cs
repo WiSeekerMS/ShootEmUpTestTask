@@ -63,17 +63,17 @@ namespace UI
                 info.Init(config);
             }
             
-            var offsetMax = _weaponsContainer.offsetMax;
-            var prefabTransform = infoPrefab.transform as RectTransform;
-            var rightShift = prefabTransform.sizeDelta.x * configs.Count;
-            
             var spacing = _weaponsLayoutGroup != null 
                 ? _weaponsLayoutGroup.spacing 
                 : 0f;
-            
+
+            var offsetMax = _weaponsContainer.offsetMax;
+            var prefabTransform = infoPrefab.transform as RectTransform;
+            var rightShift = prefabTransform.sizeDelta.x * configs.Count + (configs.Count * spacing);
+
             _weaponsContainer.offsetMax = new Vector2
             {
-                x = offsetMax.x + rightShift + spacing, 
+                x = offsetMax.x + rightShift, 
                 y = offsetMax.y
             };
 

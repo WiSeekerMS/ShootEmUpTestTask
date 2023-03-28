@@ -1,4 +1,6 @@
 ﻿using Common;
+using System;
+using UniRx;
 using UnityEngine;
 using Zenject;
 using Random = UnityEngine.Random;
@@ -9,6 +11,7 @@ namespace FPS
     {
         [SerializeField] private float _shift = 0.05f;
         [SerializeField] private float _speed;
+        private IDisposable _updateObservable;
         private GameManager _gameManager;
         private Vector3 _velocity = Vector3.zero;
         private Vector3 _defaultPosition;
@@ -20,7 +23,7 @@ namespace FPS
             set
             {
                 _isBobbing = value;
-                if(!value) transform.localPosition = _defaultPosition;
+                if (!value) transform.localPosition = _defaultPosition;
             } 
         }
 
@@ -30,18 +33,27 @@ namespace FPS
             _gameManager = gameManager;
         }
 
-        private void Start()
+        private void Awake()
         {
+            _updateObservable = Observable
+                .EveryUpdate()
+                .Subscribe(_ => OnUpdate());
+
             _defaultPosition = transform.localPosition;
         }
-        
+
+        private void OnDestroy()
+        {
+            _updateObservable?.Dispose();
+        }
+
         private float GetRandomValue()
         {
             var r = Random.value;
             return r > 0.5f ? 1f : -1f;
         }
 
-        private void Update()
+        private void OnUpdate()
         {
             if (!IsBobbing) return;
             
