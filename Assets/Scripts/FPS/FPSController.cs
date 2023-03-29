@@ -16,7 +16,7 @@ namespace FPS
         [SerializeField] private AimCamera _aimCamera;
         [SerializeField] private Transform _muzzleTransform;
         [SerializeField] private Transform _bulletParent;
-        [SerializeField] private float _bulletSpeed = 50f;
+        [SerializeField] private float _bulletFlightTime = 1f;
         private IDisposable _updateObservable;
         private IDisposable _fixedUpdateObservable;
         private FlyingBullet _bulletPrefab;
@@ -69,7 +69,7 @@ namespace FPS
 
                     var bullet = CreateBullet();
                     bullet.Init(OnHitTarget);
-                    bullet.MoveTo(_bulletSpeed, _hitInfo.point);
+                    bullet.MoveTo(_bulletFlightTime, _hitInfo.point);
                 }
             }
         }

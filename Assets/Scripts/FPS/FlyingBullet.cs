@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using DG.Tweening;
+using System;
 using System.Collections.Generic;
 using Target;
+using UniRx;
 using UnityEngine;
 
 namespace FPS
@@ -11,8 +12,6 @@ namespace FPS
         [SerializeField]
         private List<TriggerHandler> _triggerHandlers;
         private Action<float> _hitTarget;
-        private Coroutine _moveToCor;
-        private Coroutine _timerCor;
         private float _points;
 
         public void Init(Action<float> triggerAction)
@@ -28,50 +27,30 @@ namespace FPS
             _points += block.Points;
         }
 
-        public void MoveTo(float speed, Vector3 targetPosition)
+        public void MoveTo(float time, Vector3 targetPosition)
         {
             LookAt(targetPosition);
-            
-            if (_moveToCor != null) StopCoroutine(_moveToCor);
-            _moveToCor = StartCoroutine(MoveToCor(speed, targetPosition, ReachedTarget));
-        }
-    
-        private IEnumerator MoveToCor(float speed, Vector3 targetPosition, Action action = null)
-        {
-            while (transform.position != targetPosition)
-            {
-                var delta = speed * Time.deltaTime;
-                transform.position = Vector3.MoveTowards(transform.position, targetPosition, delta);
-                yield return null;
-            }
 
-            action?.Invoke();
-            _moveToCor = null;
+            transform
+                .DOMove(targetPosition, time)
+                .SetEase(Ease.Linear)
+                .OnComplete(OnReachedTarget);
         }
 
-        private void ReachedTarget()
+        private void OnReachedTarget()
         {
-            if(_timerCor != null) StopCoroutine(_timerCor);
-            _timerCor = StartCoroutine(TimerCor(() =>
-            {
-                _hitTarget?.Invoke(_points);
-                Destroy(gameObject);
-            }));
+            Observable
+                .Timer(TimeSpan.FromSeconds(0.5f))
+                .Subscribe(_ => OnTimerStopped())
+                .AddTo(this);
         }
 
-        private IEnumerator TimerCor(Action action)
+        private void OnTimerStopped()
         {
-            var t = 0f;
-            while (t < 0.5f)
-            {
-                t += Time.deltaTime;
-                yield return null;
-            }
-            
-            action?.Invoke();
-            _timerCor = null;
+            _hitTarget?.Invoke(_points);
+            Destroy(gameObject);
         }
-        
+
         private Vector3 GetDirection(Vector3 start, Vector3 target)
         {
             var heading = target - start;
