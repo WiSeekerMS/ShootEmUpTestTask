@@ -7,10 +7,9 @@ using Random = UnityEngine.Random;
 
 namespace FPS
 {
-    public class HeadBobbing : MonoBehaviour
+    public class WeaponBobbing : MonoBehaviour
     {
         [SerializeField] private float _shift = 0.05f;
-        [SerializeField] private float _speed;
         private IDisposable _updateObservable;
         private GameManager _gameManager;
         private Vector3 _velocity = Vector3.zero;

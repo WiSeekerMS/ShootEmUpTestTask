@@ -9,7 +9,7 @@ namespace FPS
     public class AimCamera : MonoBehaviour
     {
         [SerializeField] private Camera _playerCamera;
-        [SerializeField] private HeadBobbing _headBobbing;
+        [SerializeField] private WeaponBobbing _weaponBobbing;
         [SerializeField] private Vector3 _aimingPosition;
         private IDisposable _updateObservable;
         private IDisposable _fixedUpdateObservable;
@@ -59,7 +59,7 @@ namespace FPS
         {
             if (!_isInit) return;
             _isAim = Input.GetMouseButton(1);
-            _headBobbing.IsBobbing = _isAim;
+            _weaponBobbing.IsBobbing = _isAim;
         }
 
         private void OnFixedUpdate()

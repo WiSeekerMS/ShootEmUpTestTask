@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Configs;
 using FPS;
 using Target;
 using UI;
+using UniRx;
 using UnityEngine;
 using Zenject;
 
@@ -22,7 +22,6 @@ namespace Common
         private int _currentLevelIndex;
         private WeaponConfig _weaponConfig;
         private bool _isCheckComplete;
-        private Coroutine _timerCor;
 
         private const float TargetYPosition = 10f;
         private const float TimeToMoveToNextLevel = 1.5f;
@@ -89,19 +88,6 @@ namespace Common
             _settingsPanel.IsVisible = false;
         }
 
-        private IEnumerator TimerCor(Action action)
-        {
-            var t = 0f;
-            while (t < TimeToMoveToNextLevel)
-            {
-                t += Time.deltaTime;
-                yield return null;
-            }
-            
-            action?.Invoke();
-            _timerCor = null;
-        }
-
         public void OnHitTarget(float points)
         {
             if (_isCheckComplete) return;
@@ -120,8 +106,10 @@ namespace Common
                 _fpsController.BlockPlayerControl();
                 if (++_currentLevelIndex < _levelConfigs.Count)
                 {
-                    if(_timerCor != null) StopCoroutine(_timerCor);
-                    _timerCor = StartCoroutine(TimerCor(GoToNextLevel));
+                    Observable
+                        .Timer(TimeSpan.FromSeconds(TimeToMoveToNextLevel))
+                        .Subscribe(_ => GoToNextLevel())
+                        .AddTo(this);
                 }
                 else
                 {
