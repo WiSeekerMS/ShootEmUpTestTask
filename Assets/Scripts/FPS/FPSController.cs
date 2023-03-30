@@ -2,6 +2,7 @@
 using Configs;
 using Factories;
 using System;
+using Common.Audio;
 using UI;
 using UniRx;
 using UnityEngine;
@@ -16,17 +17,21 @@ namespace FPS
         [SerializeField] private Transform _muzzleTransform;
         [SerializeField] private Transform _bulletParent;
         
-        private IDisposable _updateObservable;
+        [SerializeField] private RevolverDrum _revolverDrum;
+        [SerializeField] private AudioClip _shotAudioClip;
+
         private IDisposable _fixedUpdateObservable;
-        
         private FlyingBullet _bulletPrefab;
         private BulletFactory _bulletFactory;
+        private AudioController _audioController;
         private GameManager _gameManager;
         private GameUIController _gameUIController;
         private WeaponConfig _weaponConfig;
         private RaycastHit _hitInfo;
+        private Controls _controls;
         
         private int _bulletAmount;
+        private bool _isBulletRelease;
         private bool _isInit;
         private bool _isHit;
 
@@ -34,10 +39,12 @@ namespace FPS
 
         [Inject]
         private void Constructor(
+            AudioController audioController,
             GameManager gameManager, 
             GameUIController gameUIController,
             BulletFactory bulletFactory)
         {
+            _audioController = audioController;
             _gameManager = gameManager;
             _gameUIController = gameUIController;
             _bulletFactory = bulletFactory;
@@ -45,18 +52,21 @@ namespace FPS
 
         private void Awake()
         {
-            _updateObservable = Observable
-                .EveryUpdate()
-                .Subscribe(_ => OnUpdate());
-
+            _controls = new Controls();
+            _controls.Main.Shot.performed += _ => OnReleaseBullet();
+            
             _fixedUpdateObservable = Observable
                 .EveryFixedUpdate()
                 .Subscribe(_ => OnFixedUpdate());
         }
 
+        private void OnDisable()
+        {
+            _controls.Disable();
+        }
+
         private void OnDestroy()
         {
-            _updateObservable?.Dispose();
             _fixedUpdateObservable?.Dispose();
         }
         
@@ -68,27 +78,37 @@ namespace FPS
             
             _mouseLook.Init();
             _aimCamera.Init();
+            _controls.Enable();
+            
             _isInit = true;
         }
 
         public void ResetParams()
         {
             _bulletAmount = _weaponConfig.BulletAmount;
+            _revolverDrum.ShowAllBullets();
         }
 
-        private void OnUpdate()
+        private void OnReleaseBullet()
         {
-            if (Input.GetKeyDown(KeyCode.Mouse0) && _isInit && _isHit)
+            if (!_isInit
+                || !_isHit
+                || _isBulletRelease
+                || _bulletAmount <= 0)
             {
-                if (--_bulletAmount >= 0)
-                {
-                    _gameUIController.HideLastBullet();
-
-                    var bullet = CreateBullet();
-                    bullet.Init(OnHitTarget);
-                    bullet.MoveTo(_weaponConfig.BulletSpeed, _hitInfo.point);
-                }
+                return;
             }
+
+            _isBulletRelease = true;
+            _bulletAmount--;
+            
+            var bullet = CreateBullet();
+            bullet.Init(OnHitTarget);
+            bullet.MoveTo(_weaponConfig.BulletSpeed, _hitInfo.point);
+
+            _audioController.PlayClip(_shotAudioClip);
+            _gameUIController.HideLastBullet();
+            _revolverDrum.HideBullet();
         }
 
         private void OnFixedUpdate()
@@ -99,12 +119,13 @@ namespace FPS
 
             if (!_isHit) return;
             var forward = _muzzleTransform.forward * _hitInfo.distance;
-            Debug.DrawRay(ray.origin, forward, Color.red);
+            Debug.DrawRay(ray.origin, forward, Color.blue);
         }
         
         private void OnHitTarget(float points)
         {
             _gameManager.OnHitTarget(points);
+            _isBulletRelease = false;
         }
 
         public void BlockPlayerControl()

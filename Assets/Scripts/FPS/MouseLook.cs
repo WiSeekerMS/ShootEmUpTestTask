@@ -8,8 +8,8 @@ namespace FPS
 {
     public class MouseLook : MonoBehaviour
     {
-        [SerializeField] private Camera _playerCamera;
-        [SerializeField] private Transform _bodyTransform;
+        [SerializeField] 
+        private Transform _bodyTransform;
         private IDisposable _updateObservable;
         private PlayerConfig _playerConfig;
         private float _xRotation;
@@ -17,10 +17,8 @@ namespace FPS
         private bool _isInit;
         private Vector2 _clampAxisX;
         private Vector2 _clampAxisY;
-
-        private const string AxisX = "Mouse X";
-        private const string AxisY = "Mouse Y";
-
+        private Controls _controls;
+        
         public bool IsBlockControl
         {
             get => _isInit;
@@ -37,28 +35,35 @@ namespace FPS
 
         private void Awake()
         {
+            _controls = new Controls();
             _updateObservable = Observable
                 .EveryUpdate()
                 .Subscribe(_ => OnUpdate());
+        }
+        
+        public void Init()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            _controls.Enable();
+            _isInit = true;
+        }
+
+        private void OnDisable()
+        {
+            _controls.Disable();
         }
 
         private void OnDestroy()
         {
             _updateObservable?.Dispose();
         }
-
-        public void Init()
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-            _isInit = true;
-        }
-
+        
         private void OnUpdate()
         {
             if (!_isInit) return;
-            var valueX = Input.GetAxis(AxisX) * Time.deltaTime * _playerConfig.MouseSensitivity;
-            var valueY = Input.GetAxis(AxisY) * Time.deltaTime * _playerConfig.MouseSensitivity;
+            var valueX = _controls.Main.AxisX.ReadValue<float>() * Time.deltaTime * _playerConfig.MouseSensitivity;
+            var valueY = _controls.Main.AxisY.ReadValue<float>() * Time.deltaTime * _playerConfig.MouseSensitivity;
             
             _xRotation -= valueY;
             _xRotation = Mathf.Clamp(_xRotation, _clampAxisX.x, _clampAxisX.y);

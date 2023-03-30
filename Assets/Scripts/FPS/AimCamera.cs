@@ -12,8 +12,8 @@ namespace FPS
         [SerializeField] private WeaponBobbing _weaponBobbing;
         [SerializeField] private Vector3 _aimingPosition;
         private IDisposable _updateObservable;
-        private IDisposable _fixedUpdateObservable;
         private PlayerConfig _playerConfig;
+        private Controls _controls;
         private Transform _cameraTransform;
         private Vector3 _originalPosition;
         private bool _isInit;
@@ -33,38 +33,36 @@ namespace FPS
 
         private void Awake()
         {
+            _controls = new Controls();
             _updateObservable = Observable
                 .EveryUpdate()
                 .Subscribe(_ => OnUpdate());
+        }
+        
+        public void Init()
+        {
+            _cameraTransform = _playerCamera.transform;
+            _originalPosition = _cameraTransform.localPosition;
+            _controls.Enable();
+            _isInit = true;
+        }
 
-            _fixedUpdateObservable = Observable
-                .EveryFixedUpdate()
-                .Subscribe(_ => OnFixedUpdate());
+        private void OnDisable()
+        {
+            _controls.Disable();
         }
 
         private void OnDestroy()
         {
             _updateObservable?.Dispose();
-            _fixedUpdateObservable?.Dispose();
-        }
-
-        public void Init()
-        {
-            _cameraTransform = _playerCamera.transform;
-            _originalPosition = _cameraTransform.localPosition;
-            _isInit = true;
         }
 
         private void OnUpdate()
         {
             if (!_isInit) return;
-            _isAim = Input.GetMouseButton(1);
+            _isAim = _controls.Main.Aim.IsPressed();
             _weaponBobbing.IsBobbing = _isAim;
-        }
-
-        private void OnFixedUpdate()
-        {
-            if (!_isInit) return;
+            
             var cameraPosition = _isAim ? _aimingPosition : _originalPosition;
             var value = _isAim ? _playerConfig.FieldOfViewAiming : _playerConfig.FieldOfView;
             
