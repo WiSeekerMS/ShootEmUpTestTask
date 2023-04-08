@@ -3,6 +3,8 @@ using Configs;
 using Factories;
 using System;
 using Common.Audio;
+using Signals;
+using Target;
 using UI;
 using UniRx;
 using UnityEngine;
@@ -28,45 +30,45 @@ namespace FPS
         private GameUIController _gameUIController;
         private WeaponConfig _weaponConfig;
         private RaycastHit _hitInfo;
-        private Controls _controls;
+        private SignalBus _signalBus;
         
         private int _bulletAmount;
         private bool _isBulletRelease;
         private bool _isInit;
         private bool _isHit;
-
+        
         public Vector3 MuzzleWorldPosition => _muzzleTransform.position;
 
         [Inject]
         private void Constructor(
+            SignalBus signalBus,
             AudioController audioController,
             GameManager gameManager, 
             GameUIController gameUIController,
             BulletFactory bulletFactory)
         {
+            _signalBus = signalBus;
             _audioController = audioController;
             _gameManager = gameManager;
             _gameUIController = gameUIController;
             _bulletFactory = bulletFactory;
+
+            Prepare();
         }
 
-        private void Awake()
+        private void Prepare()
         {
-            _controls = new Controls();
-            _controls.Main.Shot.performed += _ => OnReleaseBullet();
+            _signalBus.Subscribe<InputSignals.Shot>(OnReleaseBullet);
+            _signalBus.Subscribe<InputSignals.Reload>(OnReload);
             
             _fixedUpdateObservable = Observable
                 .EveryFixedUpdate()
                 .Subscribe(_ => OnFixedUpdate());
         }
 
-        private void OnDisable()
-        {
-            _controls.Disable();
-        }
-
         private void OnDestroy()
         {
+            _signalBus.Unsubscribe<InputSignals.Reload>(OnReload);
             _fixedUpdateObservable?.Dispose();
         }
         
@@ -78,37 +80,50 @@ namespace FPS
             
             _mouseLook.Init();
             _aimCamera.Init();
-            _controls.Enable();
-            
+
             _isInit = true;
         }
 
         public void ResetParams()
         {
-            _bulletAmount = _weaponConfig.BulletAmount;
-            _revolverDrum.ShowAllBullets();
+            OnReload();
         }
 
         private void OnReleaseBullet()
         {
             if (!_isInit
                 || !_isHit
-                || _isBulletRelease
+                //|| _isBulletRelease
                 || _bulletAmount <= 0)
             {
                 return;
             }
 
-            _isBulletRelease = true;
+            //_isBulletRelease = true;
             _bulletAmount--;
             
-            var bullet = CreateBullet();
+            /*var bullet = CreateBullet();
             bullet.Init(OnHitTarget);
-            bullet.MoveTo(_weaponConfig.BulletSpeed, _hitInfo.point);
+            bullet.MoveTo(_weaponConfig.BulletSpeed, _hitInfo.point);*/
 
             _audioController.PlayClip(_shotAudioClip);
             _gameUIController.HideLastBullet();
-            _revolverDrum.HideBullet();
+            //_revolverDrum.HideBullet();
+
+            var block = _hitInfo.transform.GetComponent<IBuildingBlock>();
+            if (block != null && !block.Equals(null))
+            {
+                OnHitTarget(block.Points);
+            }
+        }
+
+        private void OnReload()
+        {
+            if (_bulletAmount < _weaponConfig.BulletAmount)
+            {
+                _gameUIController.ShowAllBullets();
+                _bulletAmount = _weaponConfig.BulletAmount;
+            }
         }
 
         private void OnFixedUpdate()

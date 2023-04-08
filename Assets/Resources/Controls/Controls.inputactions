@@ -6,6 +6,15 @@
             "id": "e5b68c12-260a-4776-942b-f412daa4822c",
             "actions": [
                 {
+                    "name": "Quit",
+                    "type": "Button",
+                    "id": "7405842f-0ccc-4412-a2bc-bc60fa2e0d12",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Shot",
                     "type": "Button",
                     "id": "11fdc6c2-5c2c-4738-bb50-e6b955d9ea2d",
@@ -40,6 +49,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Reload",
+                    "type": "Button",
+                    "id": "cd3d850b-63e5-4ea8-80da-bce88b2f1a89",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -128,6 +146,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "AxisY",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0173368f-0091-47d5-a7a3-58590904ca9b",
+                    "path": "<Keyboard>/r",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "Keyboard + Mouse",
+                    "action": "Reload",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "476a739d-6e5e-42bb-ac08-a6320125870b",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "Press",
+                    "processors": "",
+                    "groups": "Keyboard + Mouse",
+                    "action": "Quit",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

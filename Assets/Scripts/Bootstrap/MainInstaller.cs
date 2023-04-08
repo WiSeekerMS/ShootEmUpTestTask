@@ -4,6 +4,7 @@ using Common.Extensions;
 using Factories;
 using FPS;
 using Services;
+using Signals;
 using Target;
 using UI;
 using UnityEngine;
@@ -22,12 +23,17 @@ namespace Bootstrap
         
         public override void InstallBindings()
         {
+            SignalBusInstaller.Install(Container);
+            
             Container.InstallRegistry(_settingsPanel);
             Container.InstallRegistry(_gameUIController);
             Container.InstallRegistry(_audioController);
             Container.InstallRegistry(_gameManager);
             Container.InstallRegistry(_targetCreator);
             Container.InstallRegistry(_fpsController);
+            
+            Container.DeclareSignal<InputSignals.Shot>();
+            Container.DeclareSignal<InputSignals.Reload>();
             
             Container.InstallService<InputService>();
 

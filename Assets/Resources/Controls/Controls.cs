@@ -28,6 +28,15 @@ public partial class @Controls : IInputActionCollection2, IDisposable
             ""id"": ""e5b68c12-260a-4776-942b-f412daa4822c"",
             ""actions"": [
                 {
+                    ""name"": ""Quit"",
+                    ""type"": ""Button"",
+                    ""id"": ""7405842f-0ccc-4412-a2bc-bc60fa2e0d12"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Shot"",
                     ""type"": ""Button"",
                     ""id"": ""11fdc6c2-5c2c-4738-bb50-e6b955d9ea2d"",
@@ -62,6 +71,15 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Reload"",
+                    ""type"": ""Button"",
+                    ""id"": ""cd3d850b-63e5-4ea8-80da-bce88b2f1a89"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -152,6 +170,28 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                     ""action"": ""AxisY"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0173368f-0091-47d5-a7a3-58590904ca9b"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard + Mouse"",
+                    ""action"": ""Reload"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""476a739d-6e5e-42bb-ac08-a6320125870b"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": ""Press"",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard + Mouse"",
+                    ""action"": ""Quit"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -171,10 +211,12 @@ public partial class @Controls : IInputActionCollection2, IDisposable
 }");
         // Main
         m_Main = asset.FindActionMap("Main", throwIfNotFound: true);
+        m_Main_Quit = m_Main.FindAction("Quit", throwIfNotFound: true);
         m_Main_Shot = m_Main.FindAction("Shot", throwIfNotFound: true);
         m_Main_Aim = m_Main.FindAction("Aim", throwIfNotFound: true);
         m_Main_AxisX = m_Main.FindAction("AxisX", throwIfNotFound: true);
         m_Main_AxisY = m_Main.FindAction("AxisY", throwIfNotFound: true);
+        m_Main_Reload = m_Main.FindAction("Reload", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -234,18 +276,22 @@ public partial class @Controls : IInputActionCollection2, IDisposable
     // Main
     private readonly InputActionMap m_Main;
     private IMainActions m_MainActionsCallbackInterface;
+    private readonly InputAction m_Main_Quit;
     private readonly InputAction m_Main_Shot;
     private readonly InputAction m_Main_Aim;
     private readonly InputAction m_Main_AxisX;
     private readonly InputAction m_Main_AxisY;
+    private readonly InputAction m_Main_Reload;
     public struct MainActions
     {
         private @Controls m_Wrapper;
         public MainActions(@Controls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @Quit => m_Wrapper.m_Main_Quit;
         public InputAction @Shot => m_Wrapper.m_Main_Shot;
         public InputAction @Aim => m_Wrapper.m_Main_Aim;
         public InputAction @AxisX => m_Wrapper.m_Main_AxisX;
         public InputAction @AxisY => m_Wrapper.m_Main_AxisY;
+        public InputAction @Reload => m_Wrapper.m_Main_Reload;
         public InputActionMap Get() { return m_Wrapper.m_Main; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -255,6 +301,9 @@ public partial class @Controls : IInputActionCollection2, IDisposable
         {
             if (m_Wrapper.m_MainActionsCallbackInterface != null)
             {
+                @Quit.started -= m_Wrapper.m_MainActionsCallbackInterface.OnQuit;
+                @Quit.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnQuit;
+                @Quit.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnQuit;
                 @Shot.started -= m_Wrapper.m_MainActionsCallbackInterface.OnShot;
                 @Shot.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnShot;
                 @Shot.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnShot;
@@ -267,10 +316,16 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                 @AxisY.started -= m_Wrapper.m_MainActionsCallbackInterface.OnAxisY;
                 @AxisY.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnAxisY;
                 @AxisY.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnAxisY;
+                @Reload.started -= m_Wrapper.m_MainActionsCallbackInterface.OnReload;
+                @Reload.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnReload;
+                @Reload.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnReload;
             }
             m_Wrapper.m_MainActionsCallbackInterface = instance;
             if (instance != null)
             {
+                @Quit.started += instance.OnQuit;
+                @Quit.performed += instance.OnQuit;
+                @Quit.canceled += instance.OnQuit;
                 @Shot.started += instance.OnShot;
                 @Shot.performed += instance.OnShot;
                 @Shot.canceled += instance.OnShot;
@@ -283,6 +338,9 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                 @AxisY.started += instance.OnAxisY;
                 @AxisY.performed += instance.OnAxisY;
                 @AxisY.canceled += instance.OnAxisY;
+                @Reload.started += instance.OnReload;
+                @Reload.performed += instance.OnReload;
+                @Reload.canceled += instance.OnReload;
             }
         }
     }
@@ -307,9 +365,11 @@ public partial class @Controls : IInputActionCollection2, IDisposable
     }
     public interface IMainActions
     {
+        void OnQuit(InputAction.CallbackContext context);
         void OnShot(InputAction.CallbackContext context);
         void OnAim(InputAction.CallbackContext context);
         void OnAxisX(InputAction.CallbackContext context);
         void OnAxisY(InputAction.CallbackContext context);
+        void OnReload(InputAction.CallbackContext context);
     }
 }
