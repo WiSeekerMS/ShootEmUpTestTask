@@ -4,7 +4,7 @@ namespace Common.Audio
 {
     public class AudioController : MonoBehaviour
     {
-        [SerializeField] private SFX _sfxPrefab;
+        [SerializeField] private Sfx _sfxPrefab;
 
         public void PlayClip(AudioClip clip)
         {

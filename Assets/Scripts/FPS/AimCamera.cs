@@ -1,5 +1,6 @@
 ﻿using Configs;
 using System;
+using Services;
 using UniRx;
 using UnityEngine;
 using Zenject;
@@ -12,8 +13,8 @@ namespace FPS
         [SerializeField] private WeaponBobbing _weaponBobbing;
         [SerializeField] private Vector3 _aimingPosition;
         private IDisposable _updateObservable;
+        private InputService _inputService;
         private PlayerConfig _playerConfig;
-        private Controls _controls;
         private Transform _cameraTransform;
         private Vector3 _originalPosition;
         private bool _isInit;
@@ -26,14 +27,16 @@ namespace FPS
         }
 
         [Inject]
-        private void Constructor(PlayerConfig playerConfig)
+        private void Constructor(
+            InputService inputService, 
+            PlayerConfig playerConfig)
         {
+            _inputService = inputService;
             _playerConfig = playerConfig;
         }
 
         private void Awake()
         {
-            _controls = new Controls();
             _updateObservable = Observable
                 .EveryUpdate()
                 .Subscribe(_ => OnUpdate());
@@ -43,13 +46,7 @@ namespace FPS
         {
             _cameraTransform = _playerCamera.transform;
             _originalPosition = _cameraTransform.localPosition;
-            _controls.Enable();
             _isInit = true;
-        }
-
-        private void OnDisable()
-        {
-            _controls.Disable();
         }
 
         private void OnDestroy()
@@ -60,7 +57,7 @@ namespace FPS
         private void OnUpdate()
         {
             if (!_isInit) return;
-            _isAim = _controls.Main.Aim.IsPressed();
+            _isAim = _inputService.IsAim;
             _weaponBobbing.IsBobbing = _isAim;
             
             var cameraPosition = _isAim ? _aimingPosition : _originalPosition;

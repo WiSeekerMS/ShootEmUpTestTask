@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Common.Audio
 {
-    public class SFX : MonoBehaviour
+    public class Sfx : MonoBehaviour
     {
         [SerializeField] 
         private AudioSource _audioSource;

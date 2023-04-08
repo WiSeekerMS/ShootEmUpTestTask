@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace FPS
+namespace Common
 {
     public class TriggerHandler : MonoBehaviour
     {

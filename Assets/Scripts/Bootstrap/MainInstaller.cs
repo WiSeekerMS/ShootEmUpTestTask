@@ -1,11 +1,12 @@
 ﻿using Common;
 using Common.Audio;
+using Common.Extensions;
 using Factories;
 using FPS;
+using Services;
 using Target;
 using UI;
 using UnityEngine;
-using Utils.Extensions;
 using Zenject;
 
 namespace Bootstrap
@@ -27,15 +28,10 @@ namespace Bootstrap
             Container.InstallRegistry(_gameManager);
             Container.InstallRegistry(_targetCreator);
             Container.InstallRegistry(_fpsController);
+            
+            Container.InstallService<InputService>();
 
-            BindFactories();
-        }
-
-        private void BindFactories()
-        {
-            Container
-                .BindFactory<FlyingBullet, BulletFactory>()
-                .AsSingle();
+            Container.InstallFactory<FlyingBullet, BulletFactory>();
         }
     }
 }

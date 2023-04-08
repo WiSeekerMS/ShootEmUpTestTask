@@ -1,6 +1,6 @@
-﻿using Configs;
+﻿using Common.Extensions;
+using Configs;
 using UnityEngine;
-using Utils.Extensions;
 using Zenject;
 
 namespace Bootstrap
