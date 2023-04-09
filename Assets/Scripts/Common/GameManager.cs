@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Configs;
-using FPS;
+using FPS.Presenters;
+using Gameplay.ShootSystem.Configs;
 using Target;
 using UI;
 using UniRx;
@@ -18,11 +19,11 @@ namespace Common
         private SettingsPanel _settingsPanel;
         private GameUIController _gameUIController;
         private TargetCreator _targetCreator;
-        private FPSController _fpsController;
+        private ShootPresenter _shootPresenter;
         private int _currentLevelIndex;
         private WeaponConfig _weaponConfig;
         private bool _isCheckComplete;
-
+        
         private const float TargetYPosition = 10f;
         private const float TimeToMoveToNextLevel = 1.5f;
 
@@ -34,13 +35,13 @@ namespace Common
             SettingsPanel settingsPanel,
             GameUIController gameUIController,
             TargetCreator targetCreator, 
-            FPSController fpsController)
+            ShootPresenter shootPresenter)
         {
             _mainConfig = mainConfig;
             _settingsPanel = settingsPanel;
             _gameUIController = gameUIController;
             _targetCreator = targetCreator;
-            _fpsController = fpsController;
+            _shootPresenter = shootPresenter;
             
             AfterInit();
         }
@@ -72,7 +73,7 @@ namespace Common
             _gameUIController.SetBulletAmount(_weaponConfig.BulletAmount);
             
             var pointsInfo = _settingsPanel.CollectPointsInformation();
-            var muzzlePosition = _fpsController.MuzzleWorldPosition;
+            var muzzlePosition = _shootPresenter.MuzzleWorldPosition;
             
             _targetCreator.Init(pointsInfo);
             var levelInfo = _levelConfigs.FirstOrDefault(i => i.LevelIndex == _currentLevelIndex);
@@ -84,7 +85,7 @@ namespace Common
                 _targetCreator.CreateTarget(targetPosition);
             }
             
-            _fpsController.Init(_weaponConfig);
+            _shootPresenter.Init(_weaponConfig);
             _settingsPanel.IsVisible = false;
         }
 
@@ -103,7 +104,7 @@ namespace Common
             var levelInfo = _levelConfigs.FirstOrDefault(i => i.LevelIndex == _currentLevelIndex);
             if (levelInfo && levelInfo.PointsToComplete <= _gameUIController.CurrentScore)
             {
-                _fpsController.BlockPlayerControl();
+                _shootPresenter.BlockPlayerControl();
                 if (++_currentLevelIndex < _levelConfigs.Count)
                 {
                     Observable
@@ -131,12 +132,13 @@ namespace Common
             var levelInfo = _levelConfigs.FirstOrDefault(i => i.LevelIndex == _currentLevelIndex);
             if (levelInfo == null) return;
             
-            var muzzlePosition = _fpsController.MuzzleWorldPosition;
+            var muzzlePosition = _shootPresenter.MuzzleWorldPosition;
             var targetPosition = new Vector3(0f, TargetYPosition, muzzlePosition.z + levelInfo.DistanceToTarget);
             _targetCreator.SetTargetPosition(targetPosition);
             
-            _fpsController.ResetParams();
-            _fpsController.UnlockPlayerControl();
+            _shootPresenter.ResetParams();
+            _shootPresenter.UnlockPlayerControl();
+
             _isCheckComplete = false;
         }
     }

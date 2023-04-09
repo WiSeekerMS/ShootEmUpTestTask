@@ -1,7 +1,7 @@
 ﻿using FPS;
 using UnityEngine;
 
-namespace Configs
+namespace Gameplay.ShootSystem.Configs
 {
     [CreateAssetMenu(fileName = "WeaponConfig", menuName = "Configs/WeaponConfig")]
     public class WeaponConfig : ScriptableObject

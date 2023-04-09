@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Gameplay.ShootSystem.Configs;
 using UI;
 using UnityEngine;
 using UnityEngine.UI;

@@ -19,12 +19,23 @@ namespace Common.Base
         
         private void StartLevel()
         {
+            UnlockPlayerControl();
             OnStartLevel();
         }
 
         private void GoToNextLevel()
         {
             OnGoToNextLevel();
+        }
+        
+        protected void UnlockPlayerControl()
+        {
+            //_inputService.EnableControl(true);
+        }
+        
+        protected void BlockPlayerControl()
+        {
+            //_inputService.EnableControl(false);
         }
 
         #region Virtual Methods

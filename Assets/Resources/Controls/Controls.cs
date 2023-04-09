@@ -80,6 +80,24 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ButtonAxisX"",
+                    ""type"": ""Value"",
+                    ""id"": ""b2808146-6c2b-4460-9354-ecba0636b152"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ButtonAxisY"",
+                    ""type"": ""Button"",
+                    ""id"": ""64e8b784-cfb2-4d77-86b7-4c42d5f27c32"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -192,6 +210,72 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                     ""action"": ""Quit"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""9de8cceb-589e-4171-9643-d583500fd117"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ButtonAxisX"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""0739953e-655e-419d-84c7-0927c8f0c2e5"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard + Mouse"",
+                    ""action"": ""ButtonAxisX"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""dd95ee85-a74c-4fe1-bddf-ba1c03744af3"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard + Mouse"",
+                    ""action"": ""ButtonAxisX"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""cdba7f07-e06d-4247-80aa-3a6fc1e72e40"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ButtonAxisY"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""be58e540-e25f-4553-bf16-c1e7450a7241"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard + Mouse"",
+                    ""action"": ""ButtonAxisY"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""9974fc20-c5ee-4715-8d2d-f0bc1c850dcc"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard + Mouse"",
+                    ""action"": ""ButtonAxisY"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -217,6 +301,8 @@ public partial class @Controls : IInputActionCollection2, IDisposable
         m_Main_AxisX = m_Main.FindAction("AxisX", throwIfNotFound: true);
         m_Main_AxisY = m_Main.FindAction("AxisY", throwIfNotFound: true);
         m_Main_Reload = m_Main.FindAction("Reload", throwIfNotFound: true);
+        m_Main_ButtonAxisX = m_Main.FindAction("ButtonAxisX", throwIfNotFound: true);
+        m_Main_ButtonAxisY = m_Main.FindAction("ButtonAxisY", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -282,6 +368,8 @@ public partial class @Controls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Main_AxisX;
     private readonly InputAction m_Main_AxisY;
     private readonly InputAction m_Main_Reload;
+    private readonly InputAction m_Main_ButtonAxisX;
+    private readonly InputAction m_Main_ButtonAxisY;
     public struct MainActions
     {
         private @Controls m_Wrapper;
@@ -292,6 +380,8 @@ public partial class @Controls : IInputActionCollection2, IDisposable
         public InputAction @AxisX => m_Wrapper.m_Main_AxisX;
         public InputAction @AxisY => m_Wrapper.m_Main_AxisY;
         public InputAction @Reload => m_Wrapper.m_Main_Reload;
+        public InputAction @ButtonAxisX => m_Wrapper.m_Main_ButtonAxisX;
+        public InputAction @ButtonAxisY => m_Wrapper.m_Main_ButtonAxisY;
         public InputActionMap Get() { return m_Wrapper.m_Main; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -319,6 +409,12 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                 @Reload.started -= m_Wrapper.m_MainActionsCallbackInterface.OnReload;
                 @Reload.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnReload;
                 @Reload.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnReload;
+                @ButtonAxisX.started -= m_Wrapper.m_MainActionsCallbackInterface.OnButtonAxisX;
+                @ButtonAxisX.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnButtonAxisX;
+                @ButtonAxisX.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnButtonAxisX;
+                @ButtonAxisY.started -= m_Wrapper.m_MainActionsCallbackInterface.OnButtonAxisY;
+                @ButtonAxisY.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnButtonAxisY;
+                @ButtonAxisY.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnButtonAxisY;
             }
             m_Wrapper.m_MainActionsCallbackInterface = instance;
             if (instance != null)
@@ -341,6 +437,12 @@ public partial class @Controls : IInputActionCollection2, IDisposable
                 @Reload.started += instance.OnReload;
                 @Reload.performed += instance.OnReload;
                 @Reload.canceled += instance.OnReload;
+                @ButtonAxisX.started += instance.OnButtonAxisX;
+                @ButtonAxisX.performed += instance.OnButtonAxisX;
+                @ButtonAxisX.canceled += instance.OnButtonAxisX;
+                @ButtonAxisY.started += instance.OnButtonAxisY;
+                @ButtonAxisY.performed += instance.OnButtonAxisY;
+                @ButtonAxisY.canceled += instance.OnButtonAxisY;
             }
         }
     }
@@ -371,5 +473,7 @@ public partial class @Controls : IInputActionCollection2, IDisposable
         void OnAxisX(InputAction.CallbackContext context);
         void OnAxisY(InputAction.CallbackContext context);
         void OnReload(InputAction.CallbackContext context);
+        void OnButtonAxisX(InputAction.CallbackContext context);
+        void OnButtonAxisY(InputAction.CallbackContext context);
     }
 }

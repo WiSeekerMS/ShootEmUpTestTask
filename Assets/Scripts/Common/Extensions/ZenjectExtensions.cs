@@ -27,5 +27,12 @@ namespace Common.Extensions
                 .BindFactory<TContext, TFactory>()
                 .AsSingle();
         }
+        
+        public static void InstallModel<TModel>(this DiContainer container)
+        {
+            container
+                .BindInterfacesAndSelfTo<TModel>()
+                .AsSingle();
+        }
     }
 }

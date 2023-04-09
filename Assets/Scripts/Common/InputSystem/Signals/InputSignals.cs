@@ -1,4 +1,4 @@
-﻿namespace Signals
+﻿namespace Common.InputSystem.Signals
 {
     public static class InputSignals
     {

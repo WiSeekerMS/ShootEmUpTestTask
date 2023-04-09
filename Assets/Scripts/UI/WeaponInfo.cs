@@ -1,4 +1,5 @@
 ﻿using Configs;
+using Gameplay.ShootSystem.Configs;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

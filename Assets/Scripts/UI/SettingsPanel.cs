@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Configs;
+using Gameplay.ShootSystem.Configs;
 using UI.Base;
 using UnityEngine;
 using UnityEngine.UI;

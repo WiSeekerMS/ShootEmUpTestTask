@@ -1,8 +1,7 @@
-﻿using FPS;
-using UnityEngine;
+﻿using UnityEngine;
 using Zenject;
 
-namespace Factories
+namespace FPS.Factories
 {
     public class BulletFactory : PlaceholderFactory<FlyingBullet>
     {
