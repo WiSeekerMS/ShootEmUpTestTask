@@ -3,6 +3,8 @@
 <details close><summary><b>Video Demonstration</b></summary>
 <br />
 
+https://user-images.githubusercontent.com/55538002/230790303-5716a802-9502-4478-8a9d-92d421436151.mp4
+
 </details>
 
 ## :pencil: About
