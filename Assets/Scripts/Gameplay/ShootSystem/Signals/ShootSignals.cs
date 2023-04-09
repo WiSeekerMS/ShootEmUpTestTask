@@ -1,9 +1,18 @@
 ﻿using UnityEngine;
 
-namespace FPS.Signals
+namespace Gameplay.ShootSystem.Signals
 {
     public static class ShootSignals
     {
+        public sealed class HitTarget
+        {
+            public float Points { get; private set; }
+            public HitTarget(float points)
+            {
+                Points = points;
+            }
+        }
+        
         public sealed class UpdateRotation
         {
             public Vector3 Euler { get; private set; }

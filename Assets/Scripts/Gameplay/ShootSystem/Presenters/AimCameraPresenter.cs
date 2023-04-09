@@ -1,12 +1,12 @@
 ﻿using System;
 using Configs;
-using FPS.Models;
-using FPS.Signals;
+using Gameplay.ShootSystem.Models;
+using Gameplay.ShootSystem.Signals;
 using UniRx;
 using UnityEngine;
 using Zenject;
 
-namespace FPS.Presenters
+namespace Gameplay.ShootSystem.Presenters
 {
     public class AimCameraPresenter : IDisposable
     {

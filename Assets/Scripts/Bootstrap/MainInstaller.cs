@@ -1,5 +1,5 @@
 ﻿using Common.InputSystem.Installers;
-using FPS.Installers;
+using Gameplay.ShootSystem.Installers;
 using Zenject;
 
 namespace Bootstrap

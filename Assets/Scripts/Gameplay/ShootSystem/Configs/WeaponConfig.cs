@@ -16,6 +16,7 @@ namespace Gameplay.ShootSystem.Configs
         [SerializeField] private float _sightShiftSpeed;
         [SerializeField] private float _scoringRatio;
         [SerializeField] private float _bulletSpeed;
+        [SerializeField] private AudioClip _shotAudioClip;
 
         public Sprite Icon => _icon;
         public string WeaponName => _weaponName;
@@ -27,5 +28,6 @@ namespace Gameplay.ShootSystem.Configs
         public float SightShiftSpeed => _sightShiftSpeed;
         public float ScoringRatio => _scoringRatio;
         public float BulletSpeed => _bulletSpeed;
+        public AudioClip ShotAudioClip => _shotAudioClip;
     }
 }

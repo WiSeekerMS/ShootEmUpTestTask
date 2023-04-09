@@ -1,8 +1,8 @@
-﻿using FPS.Signals;
+﻿using Gameplay.ShootSystem.Signals;
 using UnityEngine;
 using Zenject;
 
-namespace FPS.Views
+namespace Gameplay.ShootSystem.Views
 {
     public class MouseLookView : MonoBehaviour
     {

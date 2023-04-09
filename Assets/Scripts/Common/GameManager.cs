@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Configs;
-using FPS.Presenters;
 using Gameplay.ShootSystem.Configs;
+using Gameplay.ShootSystem.Presenters;
+using Gameplay.ShootSystem.Signals;
 using Target;
 using UI;
 using UniRx;
@@ -23,7 +24,8 @@ namespace Common
         private int _currentLevelIndex;
         private WeaponConfig _weaponConfig;
         private bool _isCheckComplete;
-        
+        private SignalBus _signalBus;
+
         private const float TargetYPosition = 10f;
         private const float TimeToMoveToNextLevel = 1.5f;
 
@@ -31,28 +33,29 @@ namespace Common
         
         [Inject]
         private void Constructor(
+            SignalBus signalBus,
             MainConfig mainConfig,
             SettingsPanel settingsPanel,
             GameUIController gameUIController,
             TargetCreator targetCreator, 
             ShootPresenter shootPresenter)
         {
+            _signalBus = signalBus;
             _mainConfig = mainConfig;
             _settingsPanel = settingsPanel;
             _gameUIController = gameUIController;
             _targetCreator = targetCreator;
             _shootPresenter = shootPresenter;
-            
-            AfterInit();
         }
 
-        private void AfterInit()
+        private void Awake()
         {
             _settingsPanel
                 .StartButton
                 .onClick
                 .AddListener(OnClickStartButton);
 
+            _signalBus.Subscribe<ShootSignals.HitTarget>(OnHitTarget);
             _levelConfigs = _mainConfig.LevelConfigs;
         }
 
@@ -65,6 +68,8 @@ namespace Common
                     .onClick
                     .RemoveListener(OnClickStartButton);
             }
+            
+            _signalBus.Unsubscribe<ShootSignals.HitTarget>(OnHitTarget);
         }
 
         private void OnClickStartButton()
@@ -85,16 +90,18 @@ namespace Common
                 _targetCreator.CreateTarget(targetPosition);
             }
             
-            _shootPresenter.Init(_weaponConfig);
+            _shootPresenter.Prepare(_weaponConfig);
+            _shootPresenter.UnlockPlayerControl();
+            
             _settingsPanel.IsVisible = false;
         }
 
-        public void OnHitTarget(float points)
+        private void OnHitTarget(ShootSignals.HitTarget signal)
         {
             if (_isCheckComplete) return;
             _isCheckComplete = true;
 
-            var value = points * _weaponConfig.ScoringRatio;
+            var value = signal.Points * _weaponConfig.ScoringRatio;
             _gameUIController.UpdateScore(value);
             CheckLevelComplete();
         }

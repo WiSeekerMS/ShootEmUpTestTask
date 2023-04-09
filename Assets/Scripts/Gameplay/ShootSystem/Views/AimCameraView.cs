@@ -1,10 +1,11 @@
 ﻿using Configs;
-using FPS.Presenters;
-using FPS.Signals;
+using FPS;
+using Gameplay.ShootSystem.Presenters;
+using Gameplay.ShootSystem.Signals;
 using UnityEngine;
 using Zenject;
 
-namespace FPS
+namespace Gameplay.ShootSystem.Views
 {
     public class AimCameraView : MonoBehaviour
     {

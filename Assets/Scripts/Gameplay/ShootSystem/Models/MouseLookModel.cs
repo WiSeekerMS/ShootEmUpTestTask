@@ -1,7 +1,7 @@
 ﻿using Configs;
 using UnityEngine;
 
-namespace FPS.Models
+namespace Gameplay.ShootSystem.Models
 {
     public class MouseLookModel
     {

@@ -1,170 +1,151 @@
 ﻿using System;
-using Common;
 using Common.Audio;
 using Common.InputSystem.Signals;
-using FPS.Factories;
 using Gameplay.ShootSystem.Configs;
+using Gameplay.ShootSystem.Models;
+using Gameplay.ShootSystem.Signals;
 using Target;
 using UI;
 using UniRx;
 using UnityEngine;
 using Zenject;
 
-namespace FPS.Presenters
+namespace Gameplay.ShootSystem.Presenters
 {
-    public class ShootPresenter : MonoBehaviour
+    public class ShootPresenter : IInitializable, IDisposable
     {
-        [SerializeField] private Transform _muzzleTransform;
-        [SerializeField] private Transform _bulletParent;
-        [SerializeField] private AudioClip _shotAudioClip;
-
+        private readonly SignalBus _signalBus;
+        private readonly ShootModel _shootModel;
+        private readonly MouseLookPresenter _mouseLookPresenter;
+        private readonly AimCameraPresenter _aimCameraPresenter;
+        private readonly GameUIController _gameUIController;
+        private readonly  AudioController _audioController;
         private IDisposable _fixedUpdateObservable;
-        private FlyingBullet _bulletPrefab;
-        private BulletFactory _bulletFactory;
-        private AudioController _audioController;
-        private MouseLookPresenter _mouseLookPresenter;
-        private AimCameraPresenter _aimCameraPresenter;
-        private GameManager _gameManager;
-        private GameUIController _gameUIController;
-        private WeaponConfig _weaponConfig;
-        private RaycastHit _hitInfo;
-        private SignalBus _signalBus;
-        
-        private int _bulletAmount;
-        private bool _isBulletRelease;
-        private bool _isInit;
-        private bool _isHit;
- 
-        public Vector3 MuzzleWorldPosition => _muzzleTransform.position;
 
-        [Inject]
-        private void Constructor(
+        public Vector3 MuzzleWorldPosition => _shootModel.MuzzlePosition;
+
+        public ShootPresenter(
             SignalBus signalBus,
-            AudioController audioController,
+            ShootModel shootModel, 
             MouseLookPresenter mouseLookPresenter,
             AimCameraPresenter aimCameraPresenter,
-            GameManager gameManager, 
             GameUIController gameUIController,
-            BulletFactory bulletFactory)
+            AudioController audioController)
         {
             _signalBus = signalBus;
-            _audioController = audioController;
+            _shootModel = shootModel;
             _mouseLookPresenter = mouseLookPresenter;
             _aimCameraPresenter = aimCameraPresenter;
-            _gameManager = gameManager;
             _gameUIController = gameUIController;
-            _bulletFactory = bulletFactory;
-
-            Prepare();
+            _audioController = audioController;
         }
-
-        private void Prepare()
+        
+        public void Initialize()
         {
             _signalBus.Subscribe<InputSignals.Shot>(OnReleaseBullet);
             _signalBus.Subscribe<InputSignals.Reload>(OnReload);
-            
+        }
+
+        public void Enable()
+        {
             _fixedUpdateObservable = Observable
                 .EveryFixedUpdate()
                 .Subscribe(_ => OnFixedUpdate());
         }
 
-        private void OnDestroy()
+        public void Disable()
         {
-            _signalBus.Unsubscribe<InputSignals.Reload>(OnReload);
             _fixedUpdateObservable?.Dispose();
         }
 
-        public void Init(WeaponConfig weaponConfig)
+        public void Dispose()
         {
-            _weaponConfig = weaponConfig;
-            _bulletPrefab = weaponConfig.BulletPrefab;
-            _bulletAmount = weaponConfig.BulletAmount;
-
-            UnlockPlayerControl();
+            _fixedUpdateObservable?.Dispose();
+            _signalBus.Unsubscribe<InputSignals.Shot>(OnReleaseBullet);
+            _signalBus.Unsubscribe<InputSignals.Reload>(OnReload);
         }
 
-        public void ResetParams()
+        public void Prepare(WeaponConfig config)
         {
-            OnReload();
+            _shootModel.WeaponConfig = config;
+            _shootModel.BulletAmount = config.BulletAmount;
+            _shootModel.BulletPrefab = config.BulletPrefab;
         }
 
-        private void OnReleaseBullet()
+        public void SetMuzzleTransform(Transform transform)
         {
-            if (!_isInit
-                //|| !_isHit
-                //|| _isBulletRelease
-                || _bulletAmount <= 0)
-            {
-                return;
-            }
-
-            //_isBulletRelease = true;
-            _bulletAmount--;
-            
-            /*var bullet = CreateBullet();
-            bullet.Init(OnHitTarget);
-            bullet.MoveTo(_weaponConfig.BulletSpeed, _hitInfo.point);*/
-
-            _audioController.PlayClip(_shotAudioClip);
-            _gameUIController.HideLastBullet();
-            //_revolverDrum.HideBullet();
-
-            if (!_isHit)
-            {
-                return;
-            }
-            
-            var block = _hitInfo.transform.GetComponent<IBuildingBlock>();
-            if (block != null && !block.Equals(null))
-            {
-                OnHitTarget(block.Points);
-            }
-        }
-
-        private void OnReload()
-        {
-            if (_bulletAmount < _weaponConfig.BulletAmount)
-            {
-                _gameUIController.ShowAllBullets();
-                _bulletAmount = _weaponConfig.BulletAmount;
-            }
-        }
-
-        private void OnFixedUpdate()
-        {
-            if (!_isInit) return;
-            var ray = new Ray(_muzzleTransform.position, _muzzleTransform.forward);
-            _isHit = Physics.Raycast(ray, out _hitInfo, Mathf.Infinity);
-
-            if (!_isHit) return;
-            var forward = _muzzleTransform.forward * _hitInfo.distance;
-            Debug.DrawRay(ray.origin, forward, Color.blue);
+            _shootModel.MuzzleTransform = transform;
         }
         
-        private void OnHitTarget(float points)
-        {
-            _gameManager.OnHitTarget(points);
-            _isBulletRelease = false;
-        }
-
         public void BlockPlayerControl()
         {
-            _isInit = false;
+            Disable();
             _mouseLookPresenter.Disable();
             _aimCameraPresenter.Disable();
         }
         
         public void UnlockPlayerControl()
         {
-            _isInit = true;
+            Enable();
             _mouseLookPresenter.Enable();
             _aimCameraPresenter.Enable();
         }
+        
+        public void ResetParams()
+        {
+            OnReload();
+        }
 
-        private FlyingBullet CreateBullet()
+        private void OnFixedUpdate()
+        {
+            var ray = new Ray(_shootModel.MuzzlePosition, _shootModel.MuzzleForward);
+            _shootModel.IsHit = Physics.Raycast(ray, out var hitInfo, Mathf.Infinity);
+
+            if (!_shootModel.IsHit) return;
+            _shootModel.HitInfo = hitInfo;
+            
+            var forward = _shootModel.MuzzleForward * hitInfo.distance;
+            Debug.DrawRay(ray.origin, forward, Color.blue);
+        }
+        
+        /*private FlyingBullet CreateBullet()
         {
             return _bulletFactory.Create(_bulletPrefab, 
                 _muzzleTransform.position, _bulletParent);
+        }*/
+        
+        private void OnReleaseBullet()
+        {
+            if (_shootModel.BulletAmount <= 0)
+            {
+                return;
+            }
+
+            _shootModel.BulletAmount--;
+            _gameUIController.HideLastBullet();
+
+            var clip = _shootModel.WeaponConfig.ShotAudioClip;
+            _audioController.PlayClip(clip);
+
+            if (!_shootModel.IsHit)
+            {
+                return;
+            }
+            
+            var block = _shootModel.HitInfo.transform.GetComponent<IBuildingBlock>();
+            if (block != null && !block.Equals(null))
+            {
+                _signalBus.Fire(new ShootSignals.HitTarget(block.Points));
+            }
+        }
+
+        private void OnReload()
+        {
+            if (_shootModel.BulletAmount <_shootModel.WeaponConfig.BulletAmount)
+            {
+                _gameUIController.ShowAllBullets();
+                _shootModel.BulletAmount = _shootModel.WeaponConfig.BulletAmount;
+            }
         }
     }
 }

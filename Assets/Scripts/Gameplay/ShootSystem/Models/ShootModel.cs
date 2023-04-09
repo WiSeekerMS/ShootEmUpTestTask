@@ -1,20 +1,24 @@
-﻿namespace FPS.Models
+﻿using FPS;
+using Gameplay.ShootSystem.Configs;
+using UnityEngine;
+
+namespace Gameplay.ShootSystem.Models
 {
     public class ShootModel
     {
-        private int _bulletAmount;
+        public bool IsHit { get; set; }
+        public int BulletAmount { get; set; }
+        public WeaponConfig WeaponConfig { get; set; }
+        public FlyingBullet BulletPrefab { get; set; }
+        public RaycastHit HitInfo { get; set; }
+        public Transform MuzzleTransform { get; set; }
         
-        public ShootModel()
-        {
-            
-        }
+        public Vector3 MuzzlePosition => MuzzleTransform != null 
+            ? MuzzleTransform.position 
+            : Vector3.zero;
 
-        private void OnReleaseBullet()
-        {
-        }
-
-        private void OnHitTarget(float points)
-        {
-        }
+        public Vector3 MuzzleForward => MuzzleTransform != null
+            ? MuzzleTransform.forward
+            : Vector3.zero;
     }
 }
