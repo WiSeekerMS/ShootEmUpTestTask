@@ -1,5 +1,4 @@
-﻿using FPS;
-using UnityEngine;
+﻿using UnityEngine;
 using Zenject;
 
 namespace Gameplay.ShootSystem.Factories

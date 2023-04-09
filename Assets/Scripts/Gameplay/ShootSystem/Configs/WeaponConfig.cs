@@ -1,5 +1,4 @@
-﻿using FPS;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Gameplay.ShootSystem.Configs
 {

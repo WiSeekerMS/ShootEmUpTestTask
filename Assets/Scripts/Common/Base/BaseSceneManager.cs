@@ -30,12 +30,10 @@ namespace Common.Base
         
         protected void UnlockPlayerControl()
         {
-            //_inputService.EnableControl(true);
         }
         
         protected void BlockPlayerControl()
         {
-            //_inputService.EnableControl(false);
         }
 
         #region Virtual Methods

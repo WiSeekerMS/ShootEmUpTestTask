@@ -51,6 +51,17 @@ namespace Gameplay.Target
             _parentTransform.position = position;
         }
 
+        public void ResetTargetBlocks()
+        {
+            for (int i = 0; i < _root; i++)
+            {
+                for (int j = 0; j < _root; j++)
+                {
+                    _blockArray[j, i].ResetParams();
+                }
+            }
+        }
+
         private void CreateSquareTarget()
         {
             var axleCenter = _root * _halfBlockSize / 2f;
@@ -61,7 +72,7 @@ namespace Gameplay.Target
             {
                 for (int j = 0; j < _root; j++)
                 {
-                    var block = Instantiate(_buildingBlock, _parentTransform);
+                    var block = Instantiate(_buildingBlock, _parentTransform) as IBuildingBlock;
                     _blockArray[j, i] = block;
                     
                     block.BlockMaterial = new Material(_blockMaterial);

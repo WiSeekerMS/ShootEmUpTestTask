@@ -1,5 +1,4 @@
 ﻿using Configs;
-using FPS;
 using Gameplay.ShootSystem.Presenters;
 using Gameplay.ShootSystem.Signals;
 using UnityEngine;
@@ -10,12 +9,11 @@ namespace Gameplay.ShootSystem.Views
     public class AimCameraView : MonoBehaviour
     {
         [SerializeField] private Camera _playerCamera;
-        [SerializeField] private BobbingView bobbingView;
         [SerializeField] private Vector3 _aimingPosition;
+        private AimCameraPresenter _aimCameraPresenter;
+        private SignalBus _signalBus;
         private Transform _cameraTransform;
         private PlayerConfig _playerConfig;
-        private SignalBus _signalBus;
-        private AimCameraPresenter _aimCameraPresenter;
 
         [Inject]
         private void Constructor(

@@ -1,5 +1,4 @@
 ﻿using Common.Extensions;
-using FPS;
 using Gameplay.ShootSystem.Factories;
 using Gameplay.ShootSystem.Models;
 using Gameplay.ShootSystem.Presenters;

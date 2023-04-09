@@ -13,7 +13,7 @@ namespace Scenes.Installers
         [SerializeField] private SettingsPanel _settingsPanel;
         [SerializeField] private GameUIController _gameUIController;
         [SerializeField] private AudioController _audioController;
-        [SerializeField] private GameManager _gameManager;
+        [SerializeField] private LevelManager levelManager;
         [SerializeField] private TargetCreator _targetCreator;
 
         public override void InstallBindings()
@@ -21,7 +21,7 @@ namespace Scenes.Installers
             Container.InstallRegistry(_settingsPanel);
             Container.InstallRegistry(_gameUIController);
             Container.InstallRegistry(_audioController);
-            Container.InstallRegistry(_gameManager);
+            Container.InstallRegistry(levelManager);
             Container.InstallRegistry(_targetCreator);
         }
     }

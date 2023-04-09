@@ -1,12 +1,12 @@
-﻿using DG.Tweening;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Common;
+using DG.Tweening;
 using Gameplay.Target;
 using UniRx;
 using UnityEngine;
 
-namespace FPS
+namespace Gameplay.ShootSystem
 {
     public class FlyingBullet : MonoBehaviour
     {

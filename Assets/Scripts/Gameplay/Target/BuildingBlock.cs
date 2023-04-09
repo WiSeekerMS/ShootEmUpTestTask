@@ -12,7 +12,7 @@ namespace Gameplay.Target
         public Vector3 Size { get; set; }
         public Vector3 LocalPosition { get; set; }
         public Material BlockMaterial { get; set; }
-        
+
         public Color SetColor
         {
             set => _renderer.material.color = value;
@@ -33,6 +33,21 @@ namespace Gameplay.Target
             transform.localPosition = LocalPosition;
             transform.localScale = Size;
             _renderer.material = BlockMaterial;
+        }
+
+        public void Show()
+        {
+            gameObject.SetActive(true);
+        }
+
+        public void Hide()
+        {
+            gameObject.SetActive(false);
+        }
+
+        public void ResetParams()
+        {
+            Show();
         }
     }
 }

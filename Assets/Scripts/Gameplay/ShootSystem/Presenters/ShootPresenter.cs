@@ -131,13 +131,7 @@ namespace Gameplay.ShootSystem.Presenters
             var forward = _shootModel.MuzzleForward * hitInfo.distance;
             Debug.DrawRay(ray.origin, forward, Color.blue);
         }
-        
-        /*private FlyingBullet CreateBullet()
-        {
-            return _bulletFactory.Create(_bulletPrefab, 
-                _muzzleTransform.position, _bulletParent);
-        }*/
-        
+
         private void OnReleaseBullet()
         {
             if (_isBlockControl 

@@ -13,7 +13,7 @@ using Zenject;
 
 namespace Common
 {
-    public class GameManager : MonoBehaviour
+    public class LevelManager : MonoBehaviour
     {
         private List<LevelConfig> _levelConfigs;
         private MainConfig _mainConfig;
@@ -31,8 +31,6 @@ namespace Common
         private const float TargetYPosition = 10f;
         private const float TimeToMoveToNextLevel = 1.5f;
 
-        public WeaponConfig CurrentWeaponConfig => _weaponConfig;
-        
         [Inject]
         private void Constructor(
             SignalBus signalBus,
@@ -105,8 +103,10 @@ namespace Common
             if (_isCheckComplete) return;
             _isCheckComplete = true;
 
+            signal.Block.Hide();
             var value = signal.Block.Points * _weaponConfig.ScoringRatio;
             _gameUIController.UpdateScore(value);
+            
             CheckLevelComplete();
         }
 
@@ -146,7 +146,9 @@ namespace Common
             
             var muzzlePosition = _shootPresenter.MuzzleWorldPosition;
             var targetPosition = new Vector3(0f, TargetYPosition, muzzlePosition.z + levelInfo.DistanceToTarget);
+            
             _targetCreator.SetTargetPosition(targetPosition);
+            _targetCreator.ResetTargetBlocks();
             
             _shootPresenter.ResetParams();
             _shootPresenter.UnlockPlayerControl();
