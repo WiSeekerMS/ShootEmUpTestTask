@@ -1,21 +1,18 @@
-﻿using System;
-using Common.InputSystem.Services;
+﻿using Common.InputSystem.Services;
 using Configs;
 using Gameplay.ShootSystem.Models;
 using Gameplay.ShootSystem.Signals;
-using UniRx;
 using UnityEngine;
 using Zenject;
 
 namespace Gameplay.ShootSystem.Presenters
 {
-    public class MouseLookPresenter : IDisposable
+    public class MouseLookPresenter
     {
         private readonly InputService _inputService;
         private readonly PlayerConfig _playerConfig;
         private readonly MouseLookModel _mouseLookModel;
         private readonly SignalBus _signalBus;
-        private IDisposable _updateObservable;
 
         public MouseLookPresenter(
             InputService inputService, 
@@ -33,26 +30,15 @@ namespace Gameplay.ShootSystem.Presenters
         {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
-
-            _updateObservable = Observable
-                .EveryUpdate()
-                .Subscribe(_ => OnUpdate());
         }
 
         public void Disable()
         {
-            _updateObservable?.Dispose();
-            
             Cursor.lockState = CursorLockMode.Confined;
             Cursor.visible = true;
         }
-        
-        public void Dispose()
-        {
-            _updateObservable?.Dispose();
-        }
 
-        private void OnUpdate()
+        public void OnUpdate()
         {
             var valueX = _inputService.AxisXDelta * _playerConfig.MouseSensitivity * Time.deltaTime;
             var valueY = _inputService.AxisYDelta * _playerConfig.MouseSensitivity * Time.deltaTime;

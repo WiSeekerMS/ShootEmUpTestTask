@@ -10,7 +10,7 @@ namespace Gameplay.ShootSystem.Views
     public class AimCameraView : MonoBehaviour
     {
         [SerializeField] private Camera _playerCamera;
-        [SerializeField] private WeaponBobbing _weaponBobbing;
+        [SerializeField] private BobbingView bobbingView;
         [SerializeField] private Vector3 _aimingPosition;
         private Transform _cameraTransform;
         private PlayerConfig _playerConfig;

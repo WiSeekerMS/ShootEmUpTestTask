@@ -15,15 +15,20 @@ namespace Gameplay.ShootSystem.Installers
             Container.InstallService<ShootPresenter>();
             Container.InstallService<MouseLookPresenter>();
             Container.InstallService<AimCameraPresenter>();
+            Container.InstallService<BobbingPresenter>();
             
             Container.InstallModel<ShootModel>();
             Container.InstallModel<MouseLookModel>();
             Container.InstallModel<AimCameraModel>();
+            Container.InstallModel<BobbingModel>();
 
             Container.DeclareSignal<ShootSignals.HitTarget>();
             Container.DeclareSignal<ShootSignals.UpdateRotation>();
             Container.DeclareSignal<ShootSignals.UpdateAimCameraPosition>();
             Container.DeclareSignal<ShootSignals.UpdateAimCameraFieldOfView>();
+            Container.DeclareSignal<ShootSignals.UpdateSwingPosition>();
+            Container.DeclareSignal<ShootSignals.AimingStatus>();
+            Container.DeclareSignal<ShootSignals.ResetSwingPosition>();
             
             Container.InstallFactory<FlyingBullet, BulletFactory>();
         }

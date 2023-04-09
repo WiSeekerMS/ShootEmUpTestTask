@@ -1,7 +1,7 @@
 ﻿using Common;
 using Common.Audio;
 using Common.Extensions;
-using Target;
+using Gameplay.Target;
 using UI;
 using UnityEngine;
 using Zenject;

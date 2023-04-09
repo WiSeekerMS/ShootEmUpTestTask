@@ -4,7 +4,7 @@ using Common.InputSystem.Signals;
 using Gameplay.ShootSystem.Configs;
 using Gameplay.ShootSystem.Models;
 using Gameplay.ShootSystem.Signals;
-using Target;
+using Gameplay.Target;
 using UI;
 using UniRx;
 using UnityEngine;
@@ -18,10 +18,13 @@ namespace Gameplay.ShootSystem.Presenters
         private readonly ShootModel _shootModel;
         private readonly MouseLookPresenter _mouseLookPresenter;
         private readonly AimCameraPresenter _aimCameraPresenter;
+        private readonly BobbingPresenter _bobbingPresenter;
         private readonly GameUIController _gameUIController;
         private readonly  AudioController _audioController;
+        private IDisposable _updateObservable;
         private IDisposable _fixedUpdateObservable;
-
+        private bool _isBlockControl = true;
+        
         public Vector3 MuzzleWorldPosition => _shootModel.MuzzlePosition;
 
         public ShootPresenter(
@@ -29,6 +32,7 @@ namespace Gameplay.ShootSystem.Presenters
             ShootModel shootModel, 
             MouseLookPresenter mouseLookPresenter,
             AimCameraPresenter aimCameraPresenter,
+            BobbingPresenter bobbingPresenter,
             GameUIController gameUIController,
             AudioController audioController)
         {
@@ -36,6 +40,7 @@ namespace Gameplay.ShootSystem.Presenters
             _shootModel = shootModel;
             _mouseLookPresenter = mouseLookPresenter;
             _aimCameraPresenter = aimCameraPresenter;
+            _bobbingPresenter = bobbingPresenter;
             _gameUIController = gameUIController;
             _audioController = audioController;
         }
@@ -44,10 +49,27 @@ namespace Gameplay.ShootSystem.Presenters
         {
             _signalBus.Subscribe<InputSignals.Shot>(OnReleaseBullet);
             _signalBus.Subscribe<InputSignals.Reload>(OnReload);
+            _signalBus.Subscribe<ShootSignals.AimingStatus>(SetBobbingValue);
+        }
+        
+        public void Prepare(WeaponConfig config)
+        {
+            _shootModel.WeaponConfig = config;
+            _shootModel.BulletAmount = config.BulletAmount;
+            _shootModel.BulletPrefab = config.BulletPrefab;
+            
+            _bobbingPresenter.SetSightShiftSpeed(config.SightShiftSpeed);
+            _bobbingPresenter.BobbingDeltaShift(config.BobbingDeltaShift);
         }
 
         public void Enable()
         {
+            _isBlockControl = false;
+            
+            _updateObservable = Observable
+                .EveryUpdate()
+                .Subscribe(_ => OnUpdate());
+            
             _fixedUpdateObservable = Observable
                 .EveryFixedUpdate()
                 .Subscribe(_ => OnFixedUpdate());
@@ -55,21 +77,18 @@ namespace Gameplay.ShootSystem.Presenters
 
         public void Disable()
         {
+            _isBlockControl = true;
+            _updateObservable?.Dispose();
             _fixedUpdateObservable?.Dispose();
         }
 
         public void Dispose()
         {
+            _updateObservable?.Dispose();
             _fixedUpdateObservable?.Dispose();
             _signalBus.Unsubscribe<InputSignals.Shot>(OnReleaseBullet);
             _signalBus.Unsubscribe<InputSignals.Reload>(OnReload);
-        }
-
-        public void Prepare(WeaponConfig config)
-        {
-            _shootModel.WeaponConfig = config;
-            _shootModel.BulletAmount = config.BulletAmount;
-            _shootModel.BulletPrefab = config.BulletPrefab;
+            _signalBus.Unsubscribe<ShootSignals.AimingStatus>(SetBobbingValue);
         }
 
         public void SetMuzzleTransform(Transform transform)
@@ -81,19 +100,24 @@ namespace Gameplay.ShootSystem.Presenters
         {
             Disable();
             _mouseLookPresenter.Disable();
-            _aimCameraPresenter.Disable();
         }
         
         public void UnlockPlayerControl()
         {
             Enable();
             _mouseLookPresenter.Enable();
-            _aimCameraPresenter.Enable();
         }
         
         public void ResetParams()
         {
             OnReload();
+        }
+
+        private void OnUpdate()
+        {
+            _mouseLookPresenter.OnUpdate();
+            _aimCameraPresenter.OnUpdate();
+            _bobbingPresenter.OnUpdate();
         }
 
         private void OnFixedUpdate()
@@ -116,7 +140,8 @@ namespace Gameplay.ShootSystem.Presenters
         
         private void OnReleaseBullet()
         {
-            if (_shootModel.BulletAmount <= 0)
+            if (_isBlockControl 
+                || _shootModel.BulletAmount <= 0)
             {
                 return;
             }
@@ -135,17 +160,22 @@ namespace Gameplay.ShootSystem.Presenters
             var block = _shootModel.HitInfo.transform.GetComponent<IBuildingBlock>();
             if (block != null && !block.Equals(null))
             {
-                _signalBus.Fire(new ShootSignals.HitTarget(block.Points));
+                _signalBus.Fire(new ShootSignals.HitTarget(block));
             }
         }
 
         private void OnReload()
         {
-            if (_shootModel.BulletAmount <_shootModel.WeaponConfig.BulletAmount)
-            {
-                _gameUIController.ShowAllBullets();
-                _shootModel.BulletAmount = _shootModel.WeaponConfig.BulletAmount;
-            }
+            if (_shootModel.BulletAmount >= _shootModel.WeaponConfig.BulletAmount) 
+                return;
+            
+            _gameUIController.ShowAllBullets();
+            _shootModel.BulletAmount = _shootModel.WeaponConfig.BulletAmount;
+        }
+
+        private void SetBobbingValue(ShootSignals.AimingStatus signal)
+        {
+            _bobbingPresenter.SetBobbingValue(signal.IsAiming);
         }
     }
 }

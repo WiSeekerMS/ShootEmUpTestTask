@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UI;
 using UnityEngine;
 
-namespace Target
+namespace Gameplay.Target
 {
     public class TargetCreator : MonoBehaviour
     {

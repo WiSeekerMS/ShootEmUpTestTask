@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Gameplay.Target;
+using UnityEngine;
 
 namespace Gameplay.ShootSystem.Signals
 {
@@ -6,16 +7,16 @@ namespace Gameplay.ShootSystem.Signals
     {
         public sealed class HitTarget
         {
-            public float Points { get; private set; }
-            public HitTarget(float points)
+            public IBuildingBlock Block { get; }
+            public HitTarget(IBuildingBlock block)
             {
-                Points = points;
+                Block = block;
             }
         }
         
         public sealed class UpdateRotation
         {
-            public Vector3 Euler { get; private set; }
+            public Vector3 Euler { get; }
             public UpdateRotation(Vector3 euler)
             {
                 Euler = euler;
@@ -24,7 +25,7 @@ namespace Gameplay.ShootSystem.Signals
         
         public sealed class UpdateAimCameraPosition
         {
-            public Vector3 Position { get; private set; }
+            public Vector3 Position { get; }
             public UpdateAimCameraPosition(Vector3 position)
             {
                 Position = position;
@@ -33,11 +34,36 @@ namespace Gameplay.ShootSystem.Signals
 
         public sealed class UpdateAimCameraFieldOfView
         {
-            public float FieldOfView { get; private set; }
+            public float FieldOfView { get; }
             public UpdateAimCameraFieldOfView(float fieldOfView)
             {
                 FieldOfView = fieldOfView;
             }
+        }
+        
+        public sealed class UpdateSwingPosition
+        {
+            public float SightShiftSpeed { get; }
+            public Vector3 TargetPosition { get; }
+            public UpdateSwingPosition(float speed, Vector3 position)
+            {
+                SightShiftSpeed = speed;
+                TargetPosition = position;
+            }
+        }
+        
+        public sealed class AimingStatus
+        {
+            public bool IsAiming { get; }
+
+            public AimingStatus(bool isAiming)
+            {
+                IsAiming = isAiming;
+            }
+        }
+        
+        public sealed class ResetSwingPosition
+        {
         }
     }
 }

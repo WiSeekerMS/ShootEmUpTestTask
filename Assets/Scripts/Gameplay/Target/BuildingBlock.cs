@@ -1,7 +1,7 @@
 ﻿using TMPro;
 using UnityEngine;
 
-namespace Target
+namespace Gameplay.Target
 {
     public class BuildingBlock : MonoBehaviour, IBuildingBlock
     {

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using Common;
-using Target;
+using Gameplay.Target;
 using UniRx;
 using UnityEngine;
 

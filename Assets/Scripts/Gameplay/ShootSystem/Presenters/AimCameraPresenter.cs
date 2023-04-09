@@ -1,19 +1,16 @@
-﻿using System;
-using Configs;
+﻿using Configs;
 using Gameplay.ShootSystem.Models;
 using Gameplay.ShootSystem.Signals;
-using UniRx;
 using UnityEngine;
 using Zenject;
 
 namespace Gameplay.ShootSystem.Presenters
 {
-    public class AimCameraPresenter : IDisposable
+    public class AimCameraPresenter
     {
         private readonly AimCameraModel _aimCameraModel;
         private readonly PlayerConfig _playerConfig;
         private readonly SignalBus _signalBus;
-        private IDisposable _updateObservable;
 
         public AimCameraPresenter(
             SignalBus signalBus,
@@ -23,23 +20,6 @@ namespace Gameplay.ShootSystem.Presenters
             _signalBus = signalBus;
             _aimCameraModel = aimCameraModel;
             _playerConfig = playerConfig;
-        }
-
-        public void Enable()
-        {
-            _updateObservable = Observable
-                .EveryUpdate()
-                .Subscribe(_ => OnUpdate());
-        }
-        
-        public void Disable()
-        {
-            _updateObservable?.Dispose();
-        }
-
-        public void Dispose()
-        {
-            _updateObservable?.Dispose();
         }
 
         public void SetCameraOriginalPosition(Vector3 position)
@@ -52,10 +32,8 @@ namespace Gameplay.ShootSystem.Presenters
             _aimCameraModel.AimingPosition = position;
         }
 
-        private void OnUpdate()
+        public void OnUpdate()
         {
-            //_weaponBobbing.IsBobbing = _isAim;
-            
             var cameraPosition = _aimCameraModel.IsAim 
                 ? _aimCameraModel.AimingPosition 
                 : _aimCameraModel.OriginalPosition;
@@ -67,6 +45,7 @@ namespace Gameplay.ShootSystem.Presenters
                 : _playerConfig.FieldOfView;
             
             _signalBus.Fire(new ShootSignals.UpdateAimCameraFieldOfView(fieldOfView));
+            _signalBus.Fire(new ShootSignals.AimingStatus(_aimCameraModel.IsAim));
         }
     }
 }

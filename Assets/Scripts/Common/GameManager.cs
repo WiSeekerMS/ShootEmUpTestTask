@@ -5,7 +5,7 @@ using Configs;
 using Gameplay.ShootSystem.Configs;
 using Gameplay.ShootSystem.Presenters;
 using Gameplay.ShootSystem.Signals;
-using Target;
+using Gameplay.Target;
 using UI;
 using UniRx;
 using UnityEngine;
@@ -25,6 +25,8 @@ namespace Common
         private WeaponConfig _weaponConfig;
         private bool _isCheckComplete;
         private SignalBus _signalBus;
+
+        private IDisposable _timerObservable;
 
         private const float TargetYPosition = 10f;
         private const float TimeToMoveToNextLevel = 1.5f;
@@ -61,6 +63,8 @@ namespace Common
 
         private void OnDestroy()
         {
+            _timerObservable?.Dispose();
+            
             if (_settingsPanel != null)
             {
                 _settingsPanel
@@ -101,7 +105,7 @@ namespace Common
             if (_isCheckComplete) return;
             _isCheckComplete = true;
 
-            var value = signal.Points * _weaponConfig.ScoringRatio;
+            var value = signal.Block.Points * _weaponConfig.ScoringRatio;
             _gameUIController.UpdateScore(value);
             CheckLevelComplete();
         }
@@ -111,13 +115,14 @@ namespace Common
             var levelInfo = _levelConfigs.FirstOrDefault(i => i.LevelIndex == _currentLevelIndex);
             if (levelInfo && levelInfo.PointsToComplete <= _gameUIController.CurrentScore)
             {
+                _timerObservable?.Dispose();
                 _shootPresenter.BlockPlayerControl();
+                
                 if (++_currentLevelIndex < _levelConfigs.Count)
                 {
-                    Observable
+                    _timerObservable = Observable
                         .Timer(TimeSpan.FromSeconds(TimeToMoveToNextLevel))
-                        .Subscribe(_ => GoToNextLevel())
-                        .AddTo(this);
+                        .Subscribe(_ => GoToNextLevel());
                 }
                 else
                 {
